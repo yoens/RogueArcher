@@ -8,12 +8,14 @@ public class Health : MonoBehaviour
     public bool destroyOnDie = true;
 
     public event Action OnDie;
+    public event Action OnDamaged;
 
     void Awake() => currentHP = maxHP;
 
     public void Take(int dmg)
     {
         currentHP -= dmg;
+        OnDamaged?.Invoke();
         if (currentHP <= 0)
         {
             currentHP = 0;

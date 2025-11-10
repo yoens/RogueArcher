@@ -14,17 +14,22 @@ public class WaveSpawner : MonoBehaviour
 {
     [Header("Wave Settings")]
     public WaveEnemy[] waves;
-    public float waveInterval = 3f;
-    public float radius = 5f;
+    public float waveInterval = 3f;   // 웨이브 끝나고 다음 웨이브까지 쉬는 시간
+    public float radius = 5f;         // 플레이어 주변 몇 m 떨어져서 소환할지
 
-    public UpgradeUI upgradeUI;
+    public UpgradeUI upgradeUI;      
     public PlayerStats playerStats;
+    public GameHUD gameHUD;          // ★ HUD 연결
 
     List<GameObject> _alive = new();
     int _currentWave = 0;
 
     void Start()
     {
+        // 게임 시작할 때 현재 웨이브 표시
+        if (gameHUD != null)
+            gameHUD.SetWave(1, waves.Length);
+
         StartCoroutine(RunWaves());
     }
 
@@ -34,35 +39,63 @@ public class WaveSpawner : MonoBehaviour
         {
             var wave = waves[_currentWave];
 
+            // 1) 이 웨이브 소환
             yield return StartCoroutine(SpawnWave(wave));
+            // 2) 다 죽을 때까지 기다림
             yield return StartCoroutine(WaitAllDead());
 
-            Debug.Log($" Wave {_currentWave + 1} cleared, showing upgrade panel...");
+            Debug.Log($"✅ Wave {_currentWave + 1} cleared, showing upgrade panel...");
 
+            // 3) 웨이브 끝났으니까 강화 선택
             bool selected = false;
             if (upgradeUI != null)
             {
-                Debug.Log(" upgradeUI.Show() called");
                 upgradeUI.Show(index =>
                 {
                     ApplyUpgrade(index);
                     selected = true;
-                    Debug.Log(" Upgrade selected: {index}");
                 });
 
+                // 선택할 때까지 기다린다
                 yield return new WaitUntil(() => selected);
+            }
+
+            // 4) 휴식 타이머 표시 (다음 웨이브까지 남은 시간)
+            if (gameHUD != null)
+            {
+                // 쉬는 동안 카운트다운
+                float t = waveInterval;
+                while (t > 0f)
+                {
+                    gameHUD.SetTimer(t);
+                    t -= Time.deltaTime;
+                    yield return null;
+                }
+                // 쉬기 끝났으면 0:00으로
+                gameHUD.SetTimer(0);
             }
             else
             {
-                Debug.LogWarning(" upgradeUI is NULL — panel not assigned!");
+                // HUD 없으면 그냥 기다리기
+                yield return new WaitForSeconds(waveInterval);
             }
 
-            yield return new WaitForSeconds(waveInterval);
-
             _currentWave++;
+
+            // 다음 웨이브 번호 HUD에 표시
+            if (_currentWave < waves.Length && gameHUD != null)
+            {
+                gameHUD.SetWave(_currentWave + 1, waves.Length);
+            }
         }
 
         Debug.Log("모든 웨이브 클리어!");
+
+        // 다 끝났을 때 타이머 0으로
+        if (gameHUD != null)
+        {
+            gameHUD.SetTimer(0);
+        }
     }
 
     IEnumerator SpawnWave(WaveEnemy wave)
@@ -91,7 +124,6 @@ public class WaveSpawner : MonoBehaviour
     {
         while (true)
         {
-            // 여기 추가!
             _alive.RemoveAll(e => e == null);
 
             if (_alive.Count == 0)

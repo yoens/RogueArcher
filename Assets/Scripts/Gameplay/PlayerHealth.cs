@@ -5,13 +5,24 @@ public class PlayerHealth : MonoBehaviour
 {
     Health _health;
     public GameOverUI gameOverUI;
+    public GameHUD gameHUD;
 
     void Awake()
     {
         _health = GetComponent<Health>();
-        _health.destroyOnDie = false;   // ¡Ú ÇÃ·¹ÀÌ¾î´Â ÆÄ±«ÇÏÁö ¾Ê±â
+        _health.destroyOnDie = false;   // ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ ï¿½Ä±ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½
         _health.OnDie += OnPlayerDie;
+        _health.OnDamaged += OnDamaged;
+
+        if(gameHUD != null)
+            gameHUD.SetHP(_health.currentHP, _health.maxHP);
     }
+    void OnDamaged()
+    {
+        if (gameHUD != null)
+            gameHUD.SetHP(_health.currentHP, _health.maxHP);   
+    }
+
 
     void OnPlayerDie()
     {
