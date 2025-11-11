@@ -10,20 +10,29 @@ public class Projectile : MonoBehaviour
     Vector3 _dir;
     ObjectPool<Projectile> _pool;
 
-    int _pierceLeft = 0;   // 남은 관통 수
+    int _pierceLeft = 0;
 
     public void Init(ObjectPool<Projectile> pool)
     {
         _pool = pool;
     }
 
-    // ★ 관통 수를 함께 받아오기
-    public void Fire(Vector3 dir, int extraPierce = 0)
+    // dir: 방향
+    // extraPierce: 플레이어 스탯에서 온 관통 보너스
+    // finalSpeed: 스탯 적용된 탄속
+    // finalDamage: 스탯 적용된 데미지
+    public void Fire(Vector3 dir, int extraPierce, float finalSpeed, int finalDamage)
     {
         _dir = dir.normalized;
         _timer = 0f;
-        // 기본으로 1번은 맞게 하고, 거기에 보너스만큼 추가
+
+        // 기본 1타 + 보너스 관통
         _pierceLeft = 1 + extraPierce;
+
+        // 여기서 실제 사용할 값 세팅
+        speed = finalSpeed;
+        damage = finalDamage;
+
         gameObject.SetActive(true);
     }
 
@@ -39,7 +48,7 @@ public class Projectile : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        // 플레이어는 무시
+        // 적만 맞게
         if (!other.CompareTag("Enemy"))
             return;
 

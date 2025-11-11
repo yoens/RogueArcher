@@ -8,4 +8,5 @@ public class EnemySO : ScriptableObject
     public int maxHP = 3;
     public float moveSpeed = 2f;
     public int contactDamage = 1;
+    public int score = 10;
 }

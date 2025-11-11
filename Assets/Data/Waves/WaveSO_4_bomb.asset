@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 975fe5d99c9b92f1fb224f2b9aa86118, type: 3}
-  m_Name: WaveSO_3_Swarm
+  m_Name: WaveSO_4_bomb
   m_EditorClassIdentifier: 
   waveName: Wave 1
   startDelay: 0
@@ -19,5 +19,8 @@ MonoBehaviour:
     count: 5
     spawnInterval: 0.4
   - enemy: {fileID: 11400000, guid: 7b87fc0c660a7e54e86bbe2f71f8dc65, type: 2}
+    count: 2
+    spawnInterval: 1
+  - enemy: {fileID: 11400000, guid: 5904af7ad3299074481b08f284a4a37e, type: 2}
     count: 2
     spawnInterval: 1

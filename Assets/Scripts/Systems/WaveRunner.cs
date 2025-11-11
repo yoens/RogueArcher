@@ -4,20 +4,66 @@ using UnityEngine;
 
 public class WaveRunner : MonoBehaviour
 {
-    public WaveSO[] waves;        // 인스펙터에서 WaveSO 3개 넣어두면 끝
+    public WaveSO[] waves;        // 인스펙터에서 WaveSO들 넣기
+    public UpgradeSO[] upgradePool;
+
     public float waveInterval = 3f;
-    public float spawnRadius = 5f;
+    public float spawnRadius = 5f;       // ← 예비용(카메라 못 찾을 때)
+    public float offscreenMargin = 2f;   // 화면 밖으로 얼마나 내보낼지
 
     public GameHUD gameHUD;
     public UpgradeUI upgradeUI;
     public PlayerStats playerStats;
 
+    public EnemySO bossData;        // ← 인스펙터에서 Boss SO 넣기
+    public float bossSpawnRadius = 6f;
+
     List<GameObject> _alive = new();
     int _current = 0;
 
+    Transform _player; // 플레이어 캐싱
+
+    UpgradeSO[] PickThree(UpgradeSO[] pool)
+    {
+        if (pool == null || pool.Length == 0)
+            return new UpgradeSO[0];
+
+        List<UpgradeSO> list = new List<UpgradeSO>(pool);
+        for (int i = 0; i < list.Count; i++)
+        {
+            int r = Random.Range(i, list.Count);
+            (list[i], list[r]) = (list[r], list[i]);
+        }
+
+        int count = Mathf.Min(3, list.Count);
+        UpgradeSO[] result = new UpgradeSO[count];
+        for (int i = 0; i < count; i++)
+            result[i] = list[i];
+
+        return result;
+    }
+
     void Start()
     {
+        var playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null)
+            _player = playerObj.transform;
+
         StartCoroutine(Run());
+    }
+
+    void SpawnBoss()
+    {
+        Vector2 center = _player != null ? (Vector2)_player.position : Vector2.zero;
+        Vector2 pos = center + Random.insideUnitCircle.normalized * bossSpawnRadius;
+
+        var boss = Instantiate(bossData.prefab, pos, Quaternion.identity);
+
+        var bossCtrl = boss.GetComponent<BossEnemy>();
+        if (bossCtrl != null)
+            bossCtrl.Setup(bossData);
+        if (gameHUD != null)
+            gameHUD.ShowBossAlert("BOSS 등장!");
     }
 
     IEnumerator Run()
@@ -26,33 +72,31 @@ public class WaveRunner : MonoBehaviour
         {
             var wave = waves[_current];
 
-            // HUD 웨이브 표시
             if (gameHUD != null)
                 gameHUD.SetWave(_current + 1, waves.Length);
 
-            // 시작 전 대기
             if (wave.startDelay > 0)
                 yield return new WaitForSeconds(wave.startDelay);
 
-            // 이 웨이브 소환
             yield return StartCoroutine(SpawnWave(wave));
 
-            // 다 죽을 때까지
             yield return StartCoroutine(WaitAllDead());
 
-            // 강화 UI
             if (upgradeUI != null)
             {
                 bool done = false;
-                upgradeUI.Show(index =>
+
+                var three = PickThree(upgradePool);
+
+                upgradeUI.Show(three, selectedUpgrade =>
                 {
-                    ApplyUpgrade(index);
+                    ApplyUpgrade(selectedUpgrade);
                     done = true;
                 });
+
                 yield return new WaitUntil(() => done);
             }
 
-            // 웨이브 간 대기 + HUD 타이머
             float t = waveInterval;
             while (t > 0)
             {
@@ -67,34 +111,55 @@ public class WaveRunner : MonoBehaviour
             _current++;
         }
 
-        Debug.Log("모든 WaveSO 소진!");
+        if (bossData != null && bossData.prefab != null)
+        {
+            SpawnBoss();
+        }
+
+        Debug.Log("모든 WaveSO + Boss 소진!");
     }
 
     IEnumerator SpawnWave(WaveSO wave)
     {
-        // WaveSO 안에 여러 종류가 들어있을 수 있음
         foreach (var info in wave.enemies)
         {
-            // 적 종류마다 따로 스폰 코루틴
             yield return StartCoroutine(SpawnEnemyGroup(info));
         }
     }
 
     IEnumerator SpawnEnemyGroup(WaveEnemyInfo info)
     {
+        if (info.enemy == null || info.enemy.prefab == null)
+            yield break;
+
         for (int i = 0; i < info.count; i++)
         {
-            var player = GameObject.FindGameObjectWithTag("Player");
-            Vector2 center = player != null ? (Vector2)player.transform.position : Vector2.zero;
-            Vector2 pos = center + Random.insideUnitCircle.normalized * spawnRadius;
+            // ★ 여기서 화면 밖 위치 계산해서 쓴다
+            Vector2 pos = GetOffscreenPosition();
 
-            // EnemySO → prefab 꺼내서 생성
             var enemy = Instantiate(info.enemy.prefab, pos, Quaternion.identity);
+
+            var chaser = enemy.GetComponent<EnemyChaser>();
+            if (chaser != null)
+                chaser.Setup(info.enemy);
+
+            var shooter = enemy.GetComponent<EnemyShooter>();
+            if (shooter != null)
+                shooter.Setup(info.enemy);
+
+            var bomber = enemy.GetComponent<EnemyBomber>();
+            if (bomber != null)
+                bomber.Setup(info.enemy);
 
             var h = enemy.GetComponent<Health>();
             if (h != null)
             {
-                h.OnDie += () => { _alive.Remove(enemy); };
+                h.OnDie += () =>
+                {
+                    _alive.Remove(enemy);
+                    if (GameManager.Instance != null)
+                        GameManager.Instance.AddScore(10);
+                };
             }
 
             _alive.Add(enemy);
@@ -114,15 +179,87 @@ public class WaveRunner : MonoBehaviour
         }
     }
 
-    void ApplyUpgrade(int index)
+    void ApplyUpgrade(UpgradeSO upgrade)
     {
-        if (playerStats == null) return;
+        if (playerStats == null || upgrade == null) return;
 
-        switch (index)
+        switch (upgrade.type)
         {
-            case 0: playerStats.AddMoveSpeed(1f); break;
-            case 1: playerStats.AddFireRate(0.2f); break;
-            case 2: playerStats.AddPierce(1); break;
+            case UpgradeType.MoveSpeed:
+                playerStats.AddMoveSpeed(upgrade.floatValue);
+                break;
+            case UpgradeType.FireRate:
+                playerStats.AddFireRate(upgrade.floatValue);
+                break;
+            case UpgradeType.Pierce:
+                playerStats.AddPierce(upgrade.intValue);
+                break;
+            case UpgradeType.Damage:
+                playerStats.AddDamage(upgrade.intValue);
+                break;
+            case UpgradeType.MaxHP:
+                playerStats.AddMaxHP(upgrade.intValue);
+                break;
+            case UpgradeType.ProjectileSpeed:
+                playerStats.AddProjectileSpeed(upgrade.floatValue);
+                break;
         }
+
+        Debug.Log($"Upgrade picked: {upgrade.displayName}");
+    }
+
+    //  화면 밖 위치 계산하는 헬퍼
+    Vector2 GetOffscreenPosition()
+    {
+        Camera cam = Camera.main;
+        Vector2 center = _player != null ? (Vector2)_player.position : Vector2.zero;
+
+        // 카메라 못 찾으면 예전 방식으로
+        if (cam == null)
+            return center + Random.insideUnitCircle.normalized * spawnRadius;
+
+        float halfH = cam.orthographicSize;
+        float halfW = halfH * cam.aspect;
+
+        // 화면 밖 띄울 거리
+        float margin = offscreenMargin;
+
+        // 네 면 중 하나 선택
+        int side = Random.Range(0, 4);
+        Vector2 pos = center;
+
+        switch (side)
+        {
+            // 위
+            case 0:
+                pos = center + new Vector2(
+                    Random.Range(-halfW, halfW),
+                    halfH + margin
+                );
+                break;
+            // 아래
+            case 1:
+                pos = center + new Vector2(
+                    Random.Range(-halfW, halfW),
+                    -halfH - margin
+                );
+                break;
+            // 오른쪽
+            case 2:
+                pos = center + new Vector2(
+                    halfW + margin,
+                    Random.Range(-halfH, halfH)
+                );
+                break;
+            // 왼쪽
+            case 3:
+                pos = center + new Vector2(
+                    -halfW - margin,
+                    Random.Range(-halfH, halfH)
+                );
+                break;
+        }
+
+        return pos;
     }
 }
