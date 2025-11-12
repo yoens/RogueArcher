@@ -12,9 +12,9 @@ TagManager:
   - Player
   - Water
   - UI
-  - 
-  - 
-  - 
+  - Background
+  - Characters
+  - Projectiles
   - 
   - 
   - 
@@ -41,4 +41,16 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Background
+    uniqueID: 699892005
+    locked: 0
+  - name: Characters
+    uniqueID: 2507744171
+    locked: 0
+  - name: Projectiles
+    uniqueID: 2319836425
+    locked: 0
+  - name: UI
+    uniqueID: 613044141
     locked: 0

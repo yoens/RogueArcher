@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 using System.Collections;
 
 public class GameHUD : MonoBehaviour
@@ -11,11 +12,16 @@ public class GameHUD : MonoBehaviour
     public GameObject bossAlertRoot;
     public TextMeshProUGUI bossAlertText;
 
+    public GameObject bossHPRoot;
+    public Slider bossHPSlider;
+    public TextMeshProUGUI bossHPText;
+
+    Health _boundBossHealth; // 현재 바인딩된 보스 HP
     void Awake()
     {
-        // ★ 시작할 때 무조건 꺼두기
-        if (bossAlertRoot != null)
-            bossAlertRoot.SetActive(false);
+
+        if (bossAlertRoot) bossAlertRoot.SetActive(false);
+        if (bossHPRoot) bossHPRoot.SetActive(false);
     }
 
     public void SetHP(int current, int max)
@@ -62,6 +68,40 @@ public class GameHUD : MonoBehaviour
             bossAlertText.text = msg;
 
         StartCoroutine(HideBossAlertAfterDelay(2f));
+    }
+    public void ShowBossHP(Health bossHealth)
+    {
+        if (bossHPRoot == null || bossHPSlider == null || bossHealth == null) return;
+
+        if (_boundBossHealth != null)
+            _boundBossHealth.OnHPChanged -= OnBossHPChanged; // 중복구독 방지
+
+        _boundBossHealth = bossHealth;
+
+        bossHPRoot.SetActive(true);
+        bossHPSlider.minValue = 0;
+        bossHPSlider.maxValue = bossHealth.maxHP;
+        bossHPSlider.value = bossHealth.currentHP;
+
+        if (bossHPText != null)
+            bossHPText.text = $"BOSS {bossHealth.currentHP}/{bossHealth.maxHP}";
+
+        bossHealth.OnHPChanged += OnBossHPChanged;
+    }
+    public void HideBossHP()
+    {
+        if (bossHPRoot != null) bossHPRoot.SetActive(false);
+
+        if (_boundBossHealth != null)
+            _boundBossHealth.OnHPChanged -= OnBossHPChanged;
+
+        _boundBossHealth = null;
+    }
+
+    void OnBossHPChanged(int cur, int max)
+    {
+        if (bossHPSlider != null) { bossHPSlider.maxValue = max; bossHPSlider.value = cur; }
+        if (bossHPText != null) bossHPText.text = $"BOSS {cur}/{max}";
     }
 
     IEnumerator HideBossAlertAfterDelay(float delay)

@@ -6,6 +6,7 @@ public class WaveRunner : MonoBehaviour
 {
     public WaveSO[] waves;        // 인스펙터에서 WaveSO들 넣기
     public UpgradeSO[] upgradePool;
+    public VictoryUI victoryUI;
 
     public float waveInterval = 3f;
     public float spawnRadius = 5f;       // ← 예비용(카메라 못 찾을 때)
@@ -16,7 +17,7 @@ public class WaveRunner : MonoBehaviour
     public PlayerStats playerStats;
 
     public EnemySO bossData;        // ← 인스펙터에서 Boss SO 넣기
-    public float bossSpawnRadius = 6f;
+    public float bossSpawnRadius = 30f;
 
     List<GameObject> _alive = new();
     int _current = 0;
@@ -62,8 +63,21 @@ public class WaveRunner : MonoBehaviour
         var bossCtrl = boss.GetComponent<BossEnemy>();
         if (bossCtrl != null)
             bossCtrl.Setup(bossData);
+
+        Health h = boss.GetComponent<Health>();
+        if (gameHUD != null && h != null)
+        {
+            gameHUD.ShowBossHP(h);   // ← 여기에서 슬라이더 min/max/현재값 세팅 + 구독
+            h.OnDie += () =>
+            {
+                gameHUD.HideBossHP();
+                if (victoryUI != null) victoryUI.Show();
+            };
+        }
+
+
         if (gameHUD != null)
-            gameHUD.ShowBossAlert("BOSS 등장!");
+            gameHUD.ShowBossAlert("BOSS!!");
     }
 
     IEnumerator Run()
