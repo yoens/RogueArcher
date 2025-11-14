@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -6,6 +7,8 @@ public class GameOverUI : MonoBehaviour
 {
     public GameObject root; // GameOverCanvas 또는 Panel
     public Button restartButton;
+    public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI bestScoreText;
 
     void Awake()
     {
@@ -17,6 +20,18 @@ public class GameOverUI : MonoBehaviour
     {
         root.SetActive(true);
         Time.timeScale = 0f; // 일시정지
+
+        if (GameManager.Instance != null)
+        {
+            int cur = GameManager.Instance.GetScore();
+            int best = GameManager.Instance.GetBestScore();
+
+            if (scoreText != null)
+                scoreText.text = $"Score: {cur}";
+            if (bestScoreText != null)
+                bestScoreText.text = $"Best: {best}";
+        }
+
     }
 
     public void Hide()

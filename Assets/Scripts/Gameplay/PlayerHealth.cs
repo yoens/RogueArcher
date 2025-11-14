@@ -39,6 +39,9 @@ public class PlayerHealth : MonoBehaviour
     void OnPlayerDie()
     {
         Debug.Log("Player Dead");
+        if (GameManager.Instance != null)
+            GameManager.Instance.EndRun(false);
+
         if (gameOverUI != null)
             gameOverUI.Show();
         else

@@ -142,7 +142,10 @@ public class BossEnemy : MonoBehaviour
         // StartCoroutine(TimeUtil.HitStop(0.1f));
 
         if (GameManager.Instance != null)
+        {
             GameManager.Instance.AddScore(100);
+            GameManager.Instance.EndRun(true);   // 클리어 런 저장
+        }
 
         Destroy(gameObject);
     }

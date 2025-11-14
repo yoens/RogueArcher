@@ -9,7 +9,7 @@ public class PlayerController : MonoBehaviour
     Camera _cam;
     Vector2 _moveInput;
     Rigidbody2D _rb;
-    PlayerStats _stats;            // ★ 추가
+    PlayerStats _stats;            // 추가
 
     void Awake()
     {
@@ -34,7 +34,7 @@ public class PlayerController : MonoBehaviour
 
             Vector3 lookDir = (mouseWorld - transform.position).normalized;
             float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.Euler(0, 0, angle - 90f); // 스프라이트 방향 따라 조절
+            transform.rotation = Quaternion.Euler(0, 0, angle ); // 스프라이트 방향 따라 조절
         }
     }
 
@@ -42,7 +42,7 @@ public class PlayerController : MonoBehaviour
     {
         Vector2 dir = _moveInput.normalized;
 
-        // ★ 스탯 있으면 보너스 더해주기
+        // 스탯 있으면 보너스 더해주기
         float finalSpeed = moveSpeed;
         if (_stats != null)
             finalSpeed += _stats.moveSpeedBonus;

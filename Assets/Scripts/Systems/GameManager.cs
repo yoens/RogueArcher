@@ -16,6 +16,8 @@ public class GameManager : MonoBehaviour
     int _nextUpgradeScore = 50;
     bool _upgradeOpen = false;
 
+    SaveData _saveData;
+
     void Awake()
     {
         if (Instance == null)
@@ -27,6 +29,10 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        //  세이브 로드
+        _saveData = SaveSystem.Load();
+        Debug.Log($"[GameManager] BestScore={_saveData.bestScore}, TotalRuns={_saveData.totalRuns}");
+
     }
 
     public void AddScore(int amount)
@@ -37,6 +43,20 @@ public class GameManager : MonoBehaviour
             hud.SetScore(_score);
 
         CheckScoreUpgrade();
+    }
+    public void EndRun(bool isClear)
+    {
+        // 플레이 횟수 증가
+        _saveData.totalRuns++;
+
+        // 최고 점수 갱신
+        if (_score > _saveData.bestScore)
+        {
+            _saveData.bestScore = _score;
+            Debug.Log($"[GameManager] New BestScore = {_saveData.bestScore}");
+        }
+
+        SaveSystem.Save(_saveData);
     }
 
     void CheckScoreUpgrade()
@@ -126,4 +146,6 @@ public class GameManager : MonoBehaviour
     }
 
     public int GetScore() => _score;
+    public int GetBestScore() => _saveData != null ? _saveData.bestScore : 0;
+    public int GetTotalRuns() => _saveData != null ? _saveData.totalRuns : 0;
 }
