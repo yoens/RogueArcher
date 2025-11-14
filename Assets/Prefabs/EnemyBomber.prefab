@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 6842159931976786893}
   - component: {fileID: -4270703274475471059}
   - component: {fileID: -7182310580959172559}
+  - component: {fileID: -2041094935549450005}
   m_Layer: 0
   m_Name: EnemyBomber
   m_TagString: Enemy
@@ -191,3 +192,17 @@ MonoBehaviour:
   dropDistance: 3
   dropCooldown: 2
   bombPrefab: {fileID: 5751998310413159799, guid: 1d26109fda5e2c84581f5b0bdd1078a2, type: 3}
+--- !u!114 &-2041094935549450005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3396870385690391553}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c2b1d61d6635ca4cb23756a5351064a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  flashColor: {r: 1, g: 0, b: 0, a: 1}
+  flashDuration: 0.08

@@ -22,13 +22,15 @@ public class Health : MonoBehaviour
     public void Take(int dmg)
     {
         currentHP -= dmg;
-        if (currentHP < 0) currentHP = 0;
-
         OnDamaged?.Invoke();
         OnHPChanged?.Invoke(currentHP, maxHP); //  체력 변경 알림
 
+        var fx = GetComponentInChildren<FlashEffect>(true);
+        if (fx != null) fx.Flash();
+
         if (currentHP <= 0)
         {
+            currentHP = 0;
             Die();
         }
     }

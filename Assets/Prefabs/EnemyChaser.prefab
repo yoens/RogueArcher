@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 5342897035413608721}
   - component: {fileID: 6842159931976786893}
   - component: {fileID: -4270703274475471059}
+  - component: {fileID: 4416130715107331957}
   m_Layer: 0
   m_Name: EnemyChaser
   m_TagString: Enemy
@@ -189,3 +190,17 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 3.1, y: 3.4}
   m_EdgeRadius: 0
+--- !u!114 &4416130715107331957
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3396870385690391553}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c2b1d61d6635ca4cb23756a5351064a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  flashColor: {r: 0.9433962, g: 0.07564971, b: 0.07564971, a: 1}
+  flashDuration: 0.08
