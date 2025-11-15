@@ -62,5 +62,6 @@ public class PlayerShooter : MonoBehaviour
 
         // 5) 발사
         proj.Fire(dir, bonusPierce, finalSpeed, finalDamage);
+        AudioManager.Instance?.PlaySFX("SFX_Shoot");
     }
 }

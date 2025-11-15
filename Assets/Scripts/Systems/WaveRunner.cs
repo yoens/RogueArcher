@@ -126,6 +126,7 @@ public class WaveRunner : MonoBehaviour
     // ========== 보스 페이즈 시작 ==========
     void StartBossPhase()
     {
+        AudioManager.Instance?.PlayBGM("BGM_Boss");
         // 1) 환경 교체
         if (stageEnv != null) stageEnv.SetActive(false);
         if (bossEnv != null) bossEnv.SetActive(true);

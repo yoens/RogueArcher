@@ -23,7 +23,7 @@ public class BossEnemy : MonoBehaviour
     public float projectileSpeedP1 = 4f;
 
     [Header("Phase2")]
-    public float moveSpeedP2 = 2.0f;
+    public float moveSpeedP2 = 3.0f;
     public float fireIntervalP2 = 0.8f;
     public int burstCountP2 = 10;
     public float projectileSpeedP2 = 5f;

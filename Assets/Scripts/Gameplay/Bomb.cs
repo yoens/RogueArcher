@@ -31,7 +31,7 @@ public class Bomb : MonoBehaviour
                 h.Take(damage);
             }
         }
-
+        AudioManager.Instance?.PlaySFX("SFX_Explode");
         // 3) ÆøÅº º»Ã¼ Á¦°Å
         Destroy(gameObject);
     }

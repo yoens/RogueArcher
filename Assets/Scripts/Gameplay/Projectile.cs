@@ -56,6 +56,7 @@ public class Projectile : MonoBehaviour
 
         if (other.CompareTag("Enemy"))
         {
+            AudioManager.Instance?.PlaySFX("SFX_HitEnemy");
             if (other.TryGetComponent<Health>(out var h))
                 h.Take(damage);
 

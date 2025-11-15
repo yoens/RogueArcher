@@ -11,12 +11,17 @@ public class GameManager : MonoBehaviour
     [Header("Score Upgrade")]
     public UpgradeUI upgradeUI;         // 점수로 열릴 강화 UI
     public PlayerStats playerStats;     // 실제로 강화 적용할 대상
-    public UpgradeSO[] upgradePool;     // ★ 점수 업그레이드용 풀
+    public UpgradeSO[] upgradePool;     //  점수 업그레이드용 풀
     public int scorePerUpgrade = 50;    // 50점마다 강화
     int _nextUpgradeScore = 50;
     bool _upgradeOpen = false;
 
     SaveData _saveData;
+    void Start()
+    {
+        
+        AudioManager.Instance?.PlayBGM("BGM_Stage");
+    }
 
     void Awake()
     {

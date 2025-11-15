@@ -16,6 +16,8 @@ public class GameHUD : MonoBehaviour
     public Slider bossHPSlider;
     public TextMeshProUGUI bossHPText;
 
+    public SoundSettingsUI soundSettingsUI;
+
     Health _boundBossHealth; // 현재 바인딩된 보스 HP
     void Awake()
     {
@@ -110,5 +112,16 @@ public class GameHUD : MonoBehaviour
 
         if (bossAlertRoot != null)
             bossAlertRoot.SetActive(false);
+    }
+    public void OnClickOptionsButton()
+    {
+        if (soundSettingsUI == null)
+        {
+            Debug.LogWarning("[GameHUD] soundSettingsUI is null!");
+            return;
+        }
+
+        Debug.Log("[GameHUD] Options button clicked");
+        soundSettingsUI.TogglePanel();
     }
 }
