@@ -1,11 +1,10 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Health))]
 [RequireComponent(typeof(Health), typeof(SpriteRenderer))]
 public class BossEnemy : MonoBehaviour
 {
     public enum BossState { Phase1, Phase2, Dead }
-    
+
     [Header("Sprites")]
     public Sprite phase1Sprite;
     public Sprite phase2Sprite;
@@ -43,19 +42,21 @@ public class BossEnemy : MonoBehaviour
     {
         if (data == null) return;
 
-        // 체력/플레이어블 파라미터
         if (TryGetComponent(out _health))
         {
             _health.maxHP = data.maxHP;
             _health.currentHP = data.maxHP;
             _health.destroyOnDie = false;
             _health.OnDie += OnBossDie;
-            _health.OnHPChanged += OnBossHPChanged; //  페이즈 전환 감지
+            _health.OnHPChanged += OnBossHPChanged;
         }
 
-        // 이동은 SO에서 가져오되, 페이즈별로 로컬 튜닝
         moveSpeedP1 = data.moveSpeed;
-        // moveSpeedP2는 moveSpeedP1보다 살짝 빠르게 유지 (원하면 수정)
+    }
+
+    void Awake()
+    {
+        _sr = GetComponent<SpriteRenderer>();
     }
 
     void Start()
@@ -63,10 +64,6 @@ public class BossEnemy : MonoBehaviour
         var player = GameObject.FindGameObjectWithTag("Player");
         if (player != null) _target = player.transform;
         EnterPhase(BossState.Phase1);
-    }
-    void Awake()
-    {
-        _sr = GetComponent<SpriteRenderer>();
     }
 
     void OnDestroy()
@@ -91,6 +88,7 @@ public class BossEnemy : MonoBehaviour
     {
         _state = next;
         _fireTimer = 0f;
+
         if (_sr != null)
         {
             if (_state == BossState.Phase1 && phase1Sprite != null)
@@ -99,28 +97,21 @@ public class BossEnemy : MonoBehaviour
                 _sr.sprite = phase2Sprite;
         }
 
-        // 페이즈 진입 알림 (HUD가 있으면 보임)
         var hud = FindObjectOfType<GameHUD>();
         if (hud != null && _state == BossState.Phase2)
             hud.ShowBossAlert("PHASE 2!");
 
-        // 연출 추가하고 싶으면 여기서 카메라 셰이크/사운드
-        // CameraShake.Instance?.Shake(0.25f, 0.2f);
         if (_state == BossState.Phase2)
         {
-            CameraShake.Instance?.Shake(3.5f, 0.25f); // 평소보다 강하게, 짧게
-            
+            CameraShake.Instance?.Shake(3.5f, 0.25f);
             HitStopManager.TryDoHitStop(0.05f, slowMoScale: 0.15f, cooldown: 0.5f);
-            // 50ms 슬로모션/쿨다운으로 ‘렉 느낌’ 방지
         }
-        // AudioManager.Instance?.PlaySFX("phase_change");
     }
 
     void OnBossHPChanged(int cur, int max)
     {
         if (_state == BossState.Dead) return;
 
-        
         if (_state != BossState.Phase2)
         {
             float ratio = (max > 0) ? (float)cur / max : 0f;
@@ -137,14 +128,10 @@ public class BossEnemy : MonoBehaviour
 
         Debug.Log("Boss Dead");
 
-        // (선택) 마지막 폭발/연출
-        // CameraShake.Instance?.Shake(0.35f, 0.35f);
-        // StartCoroutine(TimeUtil.HitStop(0.1f));
-
         if (GameManager.Instance != null)
         {
             GameManager.Instance.AddScore(100);
-            GameManager.Instance.EndRun(true);   // 클리어 런 저장
+            GameManager.Instance.EndRun(true);
         }
 
         Destroy(gameObject);
@@ -161,7 +148,6 @@ public class BossEnemy : MonoBehaviour
             Vector3 dir = (_target.position - transform.position).normalized;
             transform.position += dir * moveSpeed * Time.deltaTime;
         }
-        // dist <= keepDistance면 멈춰서 사격 위주
     }
 
     void FireTick()
@@ -176,7 +162,6 @@ public class BossEnemy : MonoBehaviour
         }
         else if (_state == BossState.Phase2)
         {
-            // 스파이럴(회전) 탄막
             FireSpiral(burstCountP2, projectileSpeedP2, _spiralOffsetDeg);
             _spiralOffsetDeg += spiralDeltaDeg;
             _fireTimer = fireIntervalP2;

@@ -21,7 +21,12 @@ public class EnemyProjectile : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        // ★ 플레이어만 맞춤
+        if (other.CompareTag("Wall") || other.CompareTag("Tile"))
+        {
+            Despawn();
+            return;
+        }
+        //  플레이어만 맞춤
         if (other.CompareTag("Player"))
         {
             if (other.TryGetComponent<Health>(out var h))

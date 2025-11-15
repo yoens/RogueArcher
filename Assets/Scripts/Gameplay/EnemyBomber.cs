@@ -1,21 +1,26 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Health))]
+[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Collider2D))]
 public class EnemyBomber : MonoBehaviour
 {
     public float moveSpeed = 2f;
 
-    [Header("폭탄 설치 조건")]
-    public float dropDistance = 4f;      // 
-    public float dropCooldown = 2f;      // 폭탄 설치 후 다시 설치까지 시간
+    [Header("Bomb Drop")]
+    public float dropDistance = 4f;
+    public float dropCooldown = 2f;
+    public GameObject bombPrefab;
 
-    [Header("폭탄 프리팹")]
-    public GameObject bombPrefab;        // 위에서 만든 Bomb 프리팹
-
+    float _dropTimer;
     Transform _target;
-    float _dropTimer = 0f;
+    Rigidbody2D _rb;
 
-    // SO에서 세팅 가능
+    [Header("Avoidance")]
+    public float avoidDistance = 1.2f;
+    public float avoidStrength = 2f;
+    public LayerMask obstacleMask;
+
     public void Setup(EnemySO data)
     {
         if (data == null) return;
@@ -29,6 +34,16 @@ public class EnemyBomber : MonoBehaviour
         }
     }
 
+    void Awake()
+    {
+        _rb = GetComponent<Rigidbody2D>();
+        _rb.gravityScale = 0f;
+        _rb.freezeRotation = true;
+
+        var col = GetComponent<Collider2D>();
+        col.isTrigger = false;
+    }
+
     void Start()
     {
         var player = GameObject.FindGameObjectWithTag("Player");
@@ -36,20 +51,33 @@ public class EnemyBomber : MonoBehaviour
             _target = player.transform;
     }
 
-    void Update()
+    void FixedUpdate()
     {
         if (_target == null) return;
 
         _dropTimer -= Time.deltaTime;
 
-        // 플레이어 쪽으로 이동은 계속
-        Vector3 dir = (_target.position - transform.position).normalized;
-        transform.position += dir * moveSpeed * Time.deltaTime;
+        // 1) 기본 추적 방향
+        Vector2 desiredDir = (_target.position - transform.position).normalized;
 
-        // 거리 체크
+        // 2) 장애물 감지 + 회피
+        Vector2 dir = desiredDir;
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, desiredDir, avoidDistance, obstacleMask);
+        if (hit.collider != null)
+        {
+            Vector2 avoid = Vector2.Perpendicular(desiredDir);
+            if (Vector2.Dot(avoid, hit.normal) < 0)
+                avoid = -avoid;
+
+            dir += avoid * avoidStrength;
+            dir.Normalize();
+        }
+
+        // 3) 이동은 velocity로
+        _rb.velocity = dir * moveSpeed;
+
+        // 4) 폭탄 설치
         float dist = Vector2.Distance(transform.position, _target.position);
-
-       
         if (dist <= dropDistance && _dropTimer <= 0f)
         {
             DropBomb();
@@ -60,8 +88,6 @@ public class EnemyBomber : MonoBehaviour
     void DropBomb()
     {
         if (bombPrefab == null) return;
-
         Instantiate(bombPrefab, transform.position, Quaternion.identity);
-        // 여기서 살짝 효과음/애니메이션 재생 가능
     }
 }

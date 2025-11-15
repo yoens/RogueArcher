@@ -1,23 +1,28 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Health))]
+[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Collider2D))]
 public class EnemyShooter : MonoBehaviour
 {
-    public float moveSpeed = 1.5f;     // 너무 안 다가오면 심심하니까 약간은 움직이게
-    public float keepDistance = 4f;    // 이 거리까지만 접근
-    public float fireInterval = 1.5f;  // 몇 초마다 쏠지
+    public float moveSpeed = 1.5f;
+    public float keepDistance = 4f;
+    public float fireInterval = 1.5f;
     public GameObject projectilePrefab;
     public float projectileSpeed = 8f;
-    public int contactDamage = 1;      // 너무 붙었을 때 플레이어 데미지
+    public int contactDamage = 1;
 
     Transform _target;
+    Rigidbody2D _rb;
     float _timer;
 
-    // SO에서 부를 초기화 함수
+    [Header("Avoidance")]
+    public float avoidDistance = 1.2f;
+    public float avoidStrength = 2f;
+    public LayerMask obstacleMask;
+
     public void Setup(EnemySO data)
     {
-        if (data == null) return;
-
         moveSpeed = data.moveSpeed;
         contactDamage = data.contactDamage;
 
@@ -28,31 +33,59 @@ public class EnemyShooter : MonoBehaviour
         }
     }
 
-    void Start()
+    void Awake()
     {
-        var player = GameObject.FindGameObjectWithTag("Player");
-        if (player != null)
-            _target = player.transform;
+        _rb = GetComponent<Rigidbody2D>();
+        _rb.gravityScale = 0f;
+        _rb.freezeRotation = true;
+
+        var col = GetComponent<Collider2D>();
+        col.isTrigger = false;
     }
 
-    void Update()
+    void Start()
+    {
+        var p = GameObject.FindGameObjectWithTag("Player");
+        if (p != null) _target = p.transform;
+    }
+
+    void FixedUpdate()
     {
         if (_target == null) return;
 
-        // 1) 일정 거리까지만 다가오기
         float dist = Vector2.Distance(transform.position, _target.position);
+
+        // 1) 기본 방향 (플레이어 쪽)
+        Vector2 desiredDir = (_target.position - transform.position).normalized;
+        Vector2 moveDir = Vector2.zero;
+
+        // 2) 일정 거리보다 멀면 접근
         if (dist > keepDistance)
         {
-            Vector3 dir = (_target.position - transform.position).normalized;
-            transform.position += dir * moveSpeed * Time.deltaTime;
+            moveDir = desiredDir;
+
+            // 장애물 감지
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, desiredDir, avoidDistance, obstacleMask);
+            if (hit.collider != null)
+            {
+                Vector2 avoidDir = Vector2.Perpendicular(desiredDir);
+                if (Vector2.Dot(avoidDir, hit.normal) < 0)
+                    avoidDir = -avoidDir;
+
+                moveDir += avoidDir * avoidStrength;
+                moveDir.Normalize();
+            }
         }
 
-        // 2) 플레이어 바라보기 (선택)
-        Vector3 lookDir = (_target.position - transform.position).normalized;
-        float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, angle - 90f);
+        // 3) 이동: 가까우면 멈추고, 멀면 이동
+        _rb.velocity = moveDir * moveSpeed;
 
-        // 3) 쿨타임 돌리고
+        // 4) 바라보기
+        Vector2 look = (_target.position - transform.position).normalized;
+        float angle = Mathf.Atan2(look.y, look.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.Euler(0, 0, angle); 
+
+        // 5) 공격
         _timer -= Time.deltaTime;
         if (_timer <= 0f)
         {
@@ -65,20 +98,18 @@ public class EnemyShooter : MonoBehaviour
     {
         if (projectilePrefab == null || _target == null) return;
 
-        var projObj = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
-        var dir = (_target.position - transform.position).normalized;
+        var obj = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
+        Vector2 dir = (_target.position - transform.position).normalized;
 
-        if (projObj.TryGetComponent<EnemyProjectile>(out var ep))
-        {
+        if (obj.TryGetComponent<EnemyProjectile>(out var ep))
             ep.Fire(dir);
-        }
     }
 
-    void OnTriggerEnter2D(Collider2D col)
+    void OnCollisionEnter2D(Collision2D col)
     {
-        if (col.CompareTag("Player"))
+        if (col.collider.CompareTag("Player"))
         {
-            if (col.TryGetComponent<Health>(out var h))
+            if (col.collider.TryGetComponent<Health>(out var h))
                 h.Take(contactDamage);
         }
     }

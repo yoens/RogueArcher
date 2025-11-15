@@ -4,26 +4,37 @@ using UnityEngine;
 
 public class WaveRunner : MonoBehaviour
 {
-    public WaveSO[] waves;        // 인스펙터에서 WaveSO들 넣기
+    public WaveSO[] waves;
     public UpgradeSO[] upgradePool;
     public VictoryUI victoryUI;
 
     public float waveInterval = 3f;
-    public float spawnRadius = 5f;       // ← 예비용(카메라 못 찾을 때)
-    public float offscreenMargin = 2f;   // 화면 밖으로 얼마나 내보낼지
+    public float spawnRadius = 5f;
+    public float offscreenMargin = 2f;
 
     public GameHUD gameHUD;
     public UpgradeUI upgradeUI;
     public PlayerStats playerStats;
 
-    public EnemySO bossData;        // ← 인스펙터에서 Boss SO 넣기
+    public EnemySO bossData;
     public float bossSpawnRadius = 30f;
+
+    [Header("Spawn Safety")]
+    public LayerMask obstacleMask;       // BlockTilemap 레이어
+    public float spawnCheckRadius = 0.6f;
+    public int spawnMaxTry = 10;
+
+    [Header("Boss Arena")]
+    public GameObject stageEnv;          // 일반 웨이브 맵 루트
+    public GameObject bossEnv;           // 보스 아레나 맵 루트
+    public Transform bossPlayerSpawn;    // 보스 페이즈 시작 시 플레이어 위치
+    public Transform bossSpawnPoint;     // 보스 스폰 위치
 
     List<GameObject> _alive = new();
     int _current = 0;
+    Transform _player;
 
-    Transform _player; // 플레이어 캐싱
-
+    // ========== Upgrade 랜덤 3개 뽑기 ==========
     UpgradeSO[] PickThree(UpgradeSO[] pool)
     {
         if (pool == null || pool.Length == 0)
@@ -50,36 +61,14 @@ public class WaveRunner : MonoBehaviour
         if (playerObj != null)
             _player = playerObj.transform;
 
+        //  시작할 때는 Stage만 켜두고 BossEnv는 끔
+        if (stageEnv != null) stageEnv.SetActive(true);
+        if (bossEnv != null) bossEnv.SetActive(false);
+
         StartCoroutine(Run());
     }
 
-    void SpawnBoss()
-    {
-        Vector2 center = _player != null ? (Vector2)_player.position : Vector2.zero;
-        Vector2 pos = center + Random.insideUnitCircle.normalized * bossSpawnRadius;
-
-        var boss = Instantiate(bossData.prefab, pos, Quaternion.identity);
-
-        var bossCtrl = boss.GetComponent<BossEnemy>();
-        if (bossCtrl != null)
-            bossCtrl.Setup(bossData);
-
-        Health h = boss.GetComponent<Health>();
-        if (gameHUD != null && h != null)
-        {
-            gameHUD.ShowBossHP(h);   // ← 여기에서 슬라이더 min/max/현재값 세팅 + 구독
-            h.OnDie += () =>
-            {
-                gameHUD.HideBossHP();
-                if (victoryUI != null) victoryUI.Show();
-            };
-        }
-
-
-        if (gameHUD != null)
-            gameHUD.ShowBossAlert("BOSS!!");
-    }
-
+    // ========== 메인 루프 ==========
     IEnumerator Run()
     {
         while (_current < waves.Length)
@@ -93,13 +82,12 @@ public class WaveRunner : MonoBehaviour
                 yield return new WaitForSeconds(wave.startDelay);
 
             yield return StartCoroutine(SpawnWave(wave));
-
             yield return StartCoroutine(WaitAllDead());
 
+            // 웨이브 끝 → 강화 선택
             if (upgradeUI != null)
             {
                 bool done = false;
-
                 var three = PickThree(upgradePool);
 
                 upgradeUI.Show(three, selectedUpgrade =>
@@ -111,6 +99,7 @@ public class WaveRunner : MonoBehaviour
                 yield return new WaitUntil(() => done);
             }
 
+            // 다음 웨이브까지 대기 + 타이머 표시
             float t = waveInterval;
             while (t > 0)
             {
@@ -125,14 +114,59 @@ public class WaveRunner : MonoBehaviour
             _current++;
         }
 
+        //모든 Wave 끝 → 보스 페이즈 시작
         if (bossData != null && bossData.prefab != null)
         {
-            SpawnBoss();
+            StartBossPhase();
         }
 
         Debug.Log("모든 WaveSO + Boss 소진!");
     }
 
+    // ========== 보스 페이즈 시작 ==========
+    void StartBossPhase()
+    {
+        // 1) 환경 교체
+        if (stageEnv != null) stageEnv.SetActive(false);
+        if (bossEnv != null) bossEnv.SetActive(true);
+
+        // 2) 플레이어 위치 이동
+        if (_player != null && bossPlayerSpawn != null)
+            _player.position = bossPlayerSpawn.position;
+
+        // 3) 보스 스폰 위치 결정
+        Vector2 spawnPos;
+        if (bossSpawnPoint != null)
+            spawnPos = bossSpawnPoint.position;
+        else if (_player != null)
+            spawnPos = (Vector2)_player.position + Vector2.up * 3f;
+        else
+            spawnPos = Vector2.zero;
+
+        // 4) 보스 생성 + 세팅
+        var boss = Instantiate(bossData.prefab, spawnPos, Quaternion.identity);
+
+        var bossCtrl = boss.GetComponent<BossEnemy>();
+        if (bossCtrl != null)
+            bossCtrl.Setup(bossData);
+
+        // 5) 보스 HP바 / 클리어 처리
+        Health h = boss.GetComponent<Health>();
+        if (gameHUD != null && h != null)
+        {
+            gameHUD.ShowBossHP(h);
+            h.OnDie += () =>
+            {
+                gameHUD.HideBossHP();
+                if (victoryUI != null) victoryUI.Show();
+            };
+        }
+
+        if (gameHUD != null)
+            gameHUD.ShowBossAlert("BOSS!!");
+    }
+
+    // ========== 웨이브 스폰 ==========
     IEnumerator SpawnWave(WaveSO wave)
     {
         foreach (var info in wave.enemies)
@@ -148,8 +182,7 @@ public class WaveRunner : MonoBehaviour
 
         for (int i = 0; i < info.count; i++)
         {
-            // ★ 여기서 화면 밖 위치 계산해서 쓴다
-            Vector2 pos = GetOffscreenPosition();
+            Vector2 pos = FindSafeSpawnPosition();
 
             var enemy = Instantiate(info.enemy.prefab, pos, Quaternion.identity);
 
@@ -193,6 +226,7 @@ public class WaveRunner : MonoBehaviour
         }
     }
 
+    // ========== 강화 적용 ==========
     void ApplyUpgrade(UpgradeSO upgrade)
     {
         if (playerStats == null || upgrade == null) return;
@@ -222,55 +256,49 @@ public class WaveRunner : MonoBehaviour
         Debug.Log($"Upgrade picked: {upgrade.displayName}");
     }
 
-    //  화면 밖 위치 계산하는 헬퍼
+    // ========== 스폰 위치 계산 ==========
+    Vector2 FindSafeSpawnPosition()
+    {
+        for (int i = 0; i < spawnMaxTry; i++)
+        {
+            Vector2 candidate = GetOffscreenPosition();
+
+            bool blocked = Physics2D.OverlapCircle(candidate, spawnCheckRadius, obstacleMask);
+            if (!blocked)
+                return candidate;
+        }
+
+        return GetOffscreenPosition();
+    }
+
     Vector2 GetOffscreenPosition()
     {
         Camera cam = Camera.main;
         Vector2 center = _player != null ? (Vector2)_player.position : Vector2.zero;
 
-        // 카메라 못 찾으면 예전 방식으로
         if (cam == null)
             return center + Random.insideUnitCircle.normalized * spawnRadius;
 
         float halfH = cam.orthographicSize;
         float halfW = halfH * cam.aspect;
-
-        // 화면 밖 띄울 거리
         float margin = offscreenMargin;
 
-        // 네 면 중 하나 선택
         int side = Random.Range(0, 4);
         Vector2 pos = center;
 
         switch (side)
         {
-            // 위
-            case 0:
-                pos = center + new Vector2(
-                    Random.Range(-halfW, halfW),
-                    halfH + margin
-                );
+            case 0: // 위
+                pos = center + new Vector2(Random.Range(-halfW, halfW), halfH + margin);
                 break;
-            // 아래
-            case 1:
-                pos = center + new Vector2(
-                    Random.Range(-halfW, halfW),
-                    -halfH - margin
-                );
+            case 1: // 아래
+                pos = center + new Vector2(Random.Range(-halfW, halfW), -halfH - margin);
                 break;
-            // 오른쪽
-            case 2:
-                pos = center + new Vector2(
-                    halfW + margin,
-                    Random.Range(-halfH, halfH)
-                );
+            case 2: // 오른쪽
+                pos = center + new Vector2(halfW + margin, Random.Range(-halfH, halfH));
                 break;
-            // 왼쪽
-            case 3:
-                pos = center + new Vector2(
-                    -halfW - margin,
-                    Random.Range(-halfH, halfH)
-                );
+            case 3: // 왼쪽
+                pos = center + new Vector2(-halfW - margin, Random.Range(-halfH, halfH));
                 break;
         }
 

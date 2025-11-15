@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 2
   tags:
   - Enemy
+  - Wall
+  - Tile
   layers:
   - Default
   - TransparentFX
@@ -15,9 +17,9 @@ TagManager:
   - Background
   - Characters
   - Projectiles
-  - 
-  - 
-  - 
+  - Enemy
+  - Tile
+  - Obstacle
   - 
   - 
   - 
@@ -45,8 +47,14 @@ TagManager:
   - name: Background
     uniqueID: 699892005
     locked: 0
+  - name: block
+    uniqueID: 52795679
+    locked: 0
   - name: Characters
     uniqueID: 2507744171
+    locked: 0
+  - name: Enemy
+    uniqueID: 1422901679
     locked: 0
   - name: Projectiles
     uniqueID: 2319836425

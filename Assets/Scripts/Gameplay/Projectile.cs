@@ -48,19 +48,20 @@ public class Projectile : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        // 적만 맞게
-        if (!other.CompareTag("Enemy"))
-            return;
-
-        if (other.TryGetComponent<Health>(out var h))
-        {
-            h.Take(damage);
-        }
-
-        _pierceLeft--;
-        if (_pierceLeft <= 0)
+        if (other.CompareTag("Wall") || other.CompareTag("Tile"))
         {
             Despawn();
+            return;
+        }
+
+        if (other.CompareTag("Enemy"))
+        {
+            if (other.TryGetComponent<Health>(out var h))
+                h.Take(damage);
+
+            _pierceLeft--;
+            if (_pierceLeft <= 0)
+                Despawn();
         }
     }
 
