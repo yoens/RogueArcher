@@ -25,13 +25,20 @@ public class EnemyBomber : MonoBehaviour
     {
         if (data == null) return;
 
-        moveSpeed = data.moveSpeed;
+        float hpMul = GameManager.Instance != null ? GameManager.Instance.GetEnemyHpMul() : 1f;
+        float spdMul = GameManager.Instance != null ? GameManager.Instance.GetEnemySpeedMul() : 1f;
+        float dmgMul = GameManager.Instance != null ? GameManager.Instance.GetEnemyDamageMul() : 1f;
+
+        moveSpeed = data.moveSpeed * spdMul;
 
         if (TryGetComponent<Health>(out var h))
         {
-            h.maxHP = data.maxHP;
-            h.currentHP = data.maxHP;
+            h.maxHP = Mathf.RoundToInt(data.maxHP * hpMul);
+            h.currentHP = h.maxHP;
         }
+
+        // 만약 폭탄 데미지를 EnemySO.contactDamage로 쓰고 싶다면:
+        // explosionDamage = Mathf.RoundToInt(data.contactDamage * dmgMul);
     }
 
     void Awake()

@@ -4,7 +4,12 @@ using UnityEngine;
 
 public class WaveRunner : MonoBehaviour
 {
-    public WaveSO[] waves;
+    [Header("Wave Sets")]
+    public WaveSetSO easyWaveSet;
+    public WaveSetSO normalWaveSet;
+    public WaveSetSO hardWaveSet;
+
+    WaveSO[] _waves;
     public UpgradeSO[] upgradePool;
     public VictoryUI victoryUI;
 
@@ -65,18 +70,48 @@ public class WaveRunner : MonoBehaviour
         if (stageEnv != null) stageEnv.SetActive(true);
         if (bossEnv != null) bossEnv.SetActive(false);
 
+        Difficulty diff = GameManager.Instance != null ? GameManager.Instance.difficulty : Difficulty.Normal;
+
+        switch (diff)
+        {
+            case Difficulty.Easy:
+                _waves = (easyWaveSet != null) ? easyWaveSet.waves : null;
+                break;
+            case Difficulty.Hard:
+                _waves = (hardWaveSet != null) ? hardWaveSet.waves : null;
+                break;
+            default:
+                _waves = (normalWaveSet != null) ? normalWaveSet.waves : null;
+                break;
+        }
+
+        if (_waves == null || _waves.Length == 0)
+        {
+            Debug.LogWarning("[WaveRunner] 선택된 난이도에 WaveSet이 비어 있습니다. 기본 Normal WaveSO 배열을 사용합니다.");
+            // 혹시 대비용: normalWaveSet이 있다면 그걸 쓰고, 그것마저 없으면 그냥 아무 것도 안 함
+            if (normalWaveSet != null && normalWaveSet.waves != null && normalWaveSet.waves.Length > 0)
+                _waves = normalWaveSet.waves;
+        }
+
         StartCoroutine(Run());
     }
 
     // ========== 메인 루프 ==========
     IEnumerator Run()
     {
-        while (_current < waves.Length)
+        // 혹시 _waves가 비어 있으면 그냥 종료
+        if (_waves == null || _waves.Length == 0)
         {
-            var wave = waves[_current];
+            Debug.LogWarning("[WaveRunner] _waves가 비어 있음. Run() 종료.");
+            yield break;
+        }
+
+        while (_current < _waves.Length)
+        {
+            var wave = _waves[_current];
 
             if (gameHUD != null)
-                gameHUD.SetWave(_current + 1, waves.Length);
+                gameHUD.SetWave(_current + 1, _waves.Length);
 
             if (wave.startDelay > 0)
                 yield return new WaitForSeconds(wave.startDelay);
@@ -84,7 +119,7 @@ public class WaveRunner : MonoBehaviour
             yield return StartCoroutine(SpawnWave(wave));
             yield return StartCoroutine(WaitAllDead());
 
-            // 웨이브 끝 → 강화 선택
+            // 강화 UI
             if (upgradeUI != null)
             {
                 bool done = false;
@@ -99,7 +134,7 @@ public class WaveRunner : MonoBehaviour
                 yield return new WaitUntil(() => done);
             }
 
-            // 다음 웨이브까지 대기 + 타이머 표시
+            // 웨이브 간 대기
             float t = waveInterval;
             while (t > 0)
             {
@@ -114,7 +149,7 @@ public class WaveRunner : MonoBehaviour
             _current++;
         }
 
-        //모든 Wave 끝 → 보스 페이즈 시작
+        // 모든 웨이브 후 보스
         if (bossData != null && bossData.prefab != null)
         {
             StartBossPhase();
@@ -123,8 +158,8 @@ public class WaveRunner : MonoBehaviour
         Debug.Log("모든 WaveSO + Boss 소진!");
     }
 
-    // ========== 보스 페이즈 시작 ==========
-    void StartBossPhase()
+        // ========== 보스 페이즈 시작 ==========
+        void StartBossPhase()
     {
         AudioManager.Instance?.PlayBGM("BGM_Boss");
         // 1) 환경 교체

@@ -17,6 +17,8 @@ public class GameManager : MonoBehaviour
     bool _upgradeOpen = false;
 
     SaveData _saveData;
+    int _currentSlot = 0;
+    public Difficulty difficulty = Difficulty.Normal;
     void Start()
     {
         
@@ -34,15 +36,23 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        //  세이브 로드
-        _saveData = SaveSystem.Load();
-        Debug.Log($"[GameManager] BestScore={_saveData.bestScore}, TotalRuns={_saveData.totalRuns}");
+        // 메인메뉴에서 선택한 값 가져오기
+        _currentSlot = RunConfig.SaveSlotIndex;
+        difficulty = RunConfig.Difficulty;
+
+        // 세이브 로드
+        _saveData = SaveSystem.Load(_currentSlot);
+        Debug.Log($"[GameManager] Slot={_currentSlot}, BestScore={_saveData.bestScore}, TotalRuns={_saveData.totalRuns}, LastDiff={_saveData.lastDifficulty}");
+
 
     }
 
     public void AddScore(int amount)
     {
-        _score += amount;
+        float mul = GetScoreMul();
+        int final = Mathf.RoundToInt(amount * mul);
+
+        _score += final;
 
         if (hud != null)
             hud.SetScore(_score);
@@ -60,8 +70,10 @@ public class GameManager : MonoBehaviour
             _saveData.bestScore = _score;
             Debug.Log($"[GameManager] New BestScore = {_saveData.bestScore}");
         }
+        // 마지막 플레이 난이도 저장
+        _saveData.lastDifficulty = difficulty;
 
-        SaveSystem.Save(_saveData);
+        SaveSystem.Save(_saveData, _currentSlot);
     }
 
     void CheckScoreUpgrade()
@@ -148,6 +160,45 @@ public class GameManager : MonoBehaviour
             result[i] = list[i];
 
         return result;
+    }
+    public float GetEnemyHpMul()
+    {
+        switch (difficulty)
+        {
+            case Difficulty.Easy: return 0.7f;  // 적 체력 70%
+            case Difficulty.Hard: return 1.4f;  // 적 체력 140%
+            default: return 1.0f;  // Normal
+        }
+    }
+
+    public float GetEnemySpeedMul()
+    {
+        switch (difficulty)
+        {
+            case Difficulty.Easy: return 0.9f;
+            case Difficulty.Hard: return 1.2f;
+            default: return 1.0f;
+        }
+    }
+
+    public float GetEnemyDamageMul()
+    {
+        switch (difficulty)
+        {
+            case Difficulty.Easy: return 0.7f;
+            case Difficulty.Hard: return 1.3f;
+            default: return 1.0f;
+        }
+    }
+
+    public float GetScoreMul()
+    {
+        switch (difficulty)
+        {
+            case Difficulty.Easy: return 0.8f;  // 쉬움은 점수 조금 덜 줌
+            case Difficulty.Hard: return 1.3f;  // 어려움은 점수 더 줌
+            default: return 1.0f;
+        }
     }
 
     public int GetScore() => _score;

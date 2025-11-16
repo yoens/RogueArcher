@@ -39,6 +39,17 @@ public class GameOverUI : MonoBehaviour
         root.SetActive(false);
         Time.timeScale = 1f;
     }
+    public void OnClickRestart()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("Game");
+    }
+
+    public void OnClickMainMenu()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("MainMenu");
+    }
 
     void Restart()
     {

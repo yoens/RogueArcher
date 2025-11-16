@@ -16,15 +16,15 @@ public class VictoryUI : MonoBehaviour
         Time.timeScale = 0f;
     }
 
-    public void OnClickRetry()
+    public void OnClickRestart()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        SceneManager.LoadScene("Game");
     }
 
-    public void OnClickQuit()
+    public void OnClickMainMenu()
     {
         Time.timeScale = 1f;
-        Application.Quit();
+        SceneManager.LoadScene("MainMenu");
     }
 }

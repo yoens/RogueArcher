@@ -23,13 +23,19 @@ public class EnemyShooter : MonoBehaviour
 
     public void Setup(EnemySO data)
     {
-        moveSpeed = data.moveSpeed;
-        contactDamage = data.contactDamage;
+        if (data == null) return;
+
+        float hpMul = GameManager.Instance != null ? GameManager.Instance.GetEnemyHpMul() : 1f;
+        float spdMul = GameManager.Instance != null ? GameManager.Instance.GetEnemySpeedMul() : 1f;
+        float dmgMul = GameManager.Instance != null ? GameManager.Instance.GetEnemyDamageMul() : 1f;
+
+        moveSpeed = data.moveSpeed * spdMul;
+        contactDamage = Mathf.RoundToInt(data.contactDamage * dmgMul);
 
         if (TryGetComponent<Health>(out var h))
         {
-            h.maxHP = data.maxHP;
-            h.currentHP = data.maxHP;
+            h.maxHP = Mathf.RoundToInt(data.maxHP * hpMul);
+            h.currentHP = h.maxHP;
         }
     }
 
@@ -83,7 +89,7 @@ public class EnemyShooter : MonoBehaviour
         // 4) 바라보기
         Vector2 look = (_target.position - transform.position).normalized;
         float angle = Mathf.Atan2(look.y, look.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, angle); 
+        transform.rotation = Quaternion.Euler(0, 0, angle + 180f); 
 
         // 5) 공격
         _timer -= Time.deltaTime;

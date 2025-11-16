@@ -42,16 +42,20 @@ public class BossEnemy : MonoBehaviour
     {
         if (data == null) return;
 
+        float hpMul = GameManager.Instance != null ? GameManager.Instance.GetEnemyHpMul() : 1f;
+        float spdMul = GameManager.Instance != null ? GameManager.Instance.GetEnemySpeedMul() : 1f;
+
         if (TryGetComponent(out _health))
         {
-            _health.maxHP = data.maxHP;
-            _health.currentHP = data.maxHP;
+            _health.maxHP = Mathf.RoundToInt(data.maxHP * hpMul);
+            _health.currentHP = _health.maxHP;
             _health.destroyOnDie = false;
             _health.OnDie += OnBossDie;
             _health.OnHPChanged += OnBossHPChanged;
         }
 
-        moveSpeedP1 = data.moveSpeed;
+        moveSpeedP1 = data.moveSpeed * spdMul;
+        // moveSpeedP2 는 인스펙터 값 유지하거나, spdMul 곱해서 더 빠르게 해도 됨
     }
 
     void Awake()

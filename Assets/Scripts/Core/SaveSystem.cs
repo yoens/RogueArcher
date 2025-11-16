@@ -1,40 +1,36 @@
-using System.IO;
 using UnityEngine;
 
 public static class SaveSystem
 {
-    static string FilePath =>
-        Path.Combine(Application.persistentDataPath, "save.json");
+    const string KEY_PREFIX = "SaveSlot_";   
 
-    public static void Save(SaveData data)
+    public static void Save(SaveData data, int slotIndex = 0)
     {
-        if (data == null) return;
-        string json = JsonUtility.ToJson(data, true);
-        File.WriteAllText(FilePath, json);
-        Debug.Log($"[SaveSystem] Saved to {FilePath}\n{json}");
+        if (data == null) data = new SaveData();
+
+        string json = JsonUtility.ToJson(data);
+        string key = KEY_PREFIX + slotIndex;
+
+        PlayerPrefs.SetString(key, json);
+        PlayerPrefs.Save();
+        Debug.Log($"[SaveSystem] Saved slot {slotIndex}: {json}");
     }
 
-    public static SaveData Load()
+    public static SaveData Load(int slotIndex = 0)
     {
-        if (!File.Exists(FilePath))
+        string key = KEY_PREFIX + slotIndex;
+
+        if (!PlayerPrefs.HasKey(key))
         {
-            Debug.Log("[SaveSystem] No save file, create new SaveData");
+            Debug.Log($"[SaveSystem] No data for slot {slotIndex}, create new");
             return new SaveData();
         }
 
-        string json = File.ReadAllText(FilePath);
+        string json = PlayerPrefs.GetString(key);
         var data = JsonUtility.FromJson<SaveData>(json);
         if (data == null) data = new SaveData();
-        Debug.Log($"[SaveSystem] Loaded from {FilePath}\n{json}");
-        return data;
-    }
 
-    public static void Delete()
-    {
-        if (File.Exists(FilePath))
-        {
-            File.Delete(FilePath);
-            Debug.Log("[SaveSystem] Save file deleted");
-        }
+        Debug.Log($"[SaveSystem] Loaded slot {slotIndex}: {json}");
+        return data;
     }
 }
