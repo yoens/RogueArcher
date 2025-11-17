@@ -6,9 +6,9 @@ using UnityEngine.UI;
 public class MainMenuUI : MonoBehaviour
 {
     [Header("Slot Info Texts")]
-    public TextMeshProUGUI[] slotLabels;   // 슬롯 0,1,2에 대응하는 텍스트들
+    public TextMeshProUGUI[] slotLabels;   // 슬롯 0,1,2 텍스트
 
-    [Header("Difficulty Buttons (Optional)")]
+    [Header("Difficulty Buttons")]
     public Button easyButton;
     public Button normalButton;
     public Button hardButton;
@@ -16,16 +16,16 @@ public class MainMenuUI : MonoBehaviour
     [Header("Start Button")]
     public Button startButton;
 
+    public ConfirmPopup confirmPopup;
+
     int _selectedSlot = 0;
     Difficulty _selectedDifficulty = Difficulty.Normal;
 
     void Start()
     {
-        // 기본값
         _selectedSlot = 0;
         _selectedDifficulty = Difficulty.Normal;
 
-        // 슬롯 라벨 갱신
         RefreshSlotLabels();
         RefreshDifficultyButtons();
     }
@@ -36,6 +36,33 @@ public class MainMenuUI : MonoBehaviour
         _selectedSlot = slotIndex;
         Debug.Log($"[MainMenu] Slot {_selectedSlot} selected");
         RefreshSlotLabels();
+    }
+
+    // --- 슬롯 리셋 (UI Button에서 호출) ---
+    // 슬롯별 Reset 버튼에 이 함수 + 인덱스 연결 (예: Slot0Reset 버튼 → 0)
+    public void OnClickResetSlot(int slotIndex)
+    {
+        SaveSystem.DeleteSlot(slotIndex);
+        Debug.Log($"[MainMenu] Reset Slot {slotIndex}");
+        RefreshSlotLabels();
+    }
+
+    // 선택된 슬롯만 리셋하고 싶으면 이걸 버튼에 연결해도 됨
+    public void OnClickResetSelectedSlot()
+    {
+        confirmPopup.Show(
+            $"SLOT {_selectedSlot} DELET YOUR DATA?",
+            onYes: () =>
+            {
+                SaveSystem.DeleteSlot(_selectedSlot);
+                RefreshSlotLabels();
+                Debug.Log($"[MainMenu] Slot {_selectedSlot} deleted");
+            },
+            onNo: () =>
+            {
+                Debug.Log("[MainMenu] Delete cancelled");
+            }
+        );
     }
 
     // --- 난이도 선택 (UI Button에서 호출) ---
@@ -49,32 +76,45 @@ public class MainMenuUI : MonoBehaviour
     // --- Start Game 버튼 ---
     public void OnClickStartGame()
     {
-        // 선택한 슬롯/난이도를 전역 설정
         RunConfig.SaveSlotIndex = _selectedSlot;
         RunConfig.Difficulty = _selectedDifficulty;
 
-        // 게임 씬 로드
         SceneManager.LoadScene("Game");
     }
 
     void RefreshSlotLabels()
     {
-        // 슬롯 라벨에 각 슬롯 세이브 데이터 표시
         for (int i = 0; i < slotLabels.Length; i++)
         {
             var label = slotLabels[i];
             if (label == null) continue;
 
-            SaveData data = SaveSystem.Load(i);
             string title = (i == _selectedSlot) ? $"[Slot {i}]" : $"Slot {i}";
-            label.text = $"{title}\nBest: {data.bestScore}\nRuns: {data.totalRuns}\nLastDiff: {data.lastDifficulty}";
+
+            // 저장 여부 체크해서 Empty / 기록 표시
+            if (!SaveSystem.HasSlot(i))
+            {
+                label.text = $"{title}\nEmpty";
+            }
+            else
+            {
+                SaveData data = SaveSystem.Load(i);
+                label.text =
+                    $"{title}\n" +
+                    $"Best: {data.bestScore}\n" +
+                    $"Runs: {data.totalRuns}\n" +
+                    $"BestDiff: {data.bestScoreDifficulty}\n" +
+                    $"LastDiff: {data.lastDifficulty}";
+            }
         }
+    }
+    public void OnClickBackToHome()
+    {
+        SceneManager.LoadScene("Home");
     }
 
     void RefreshDifficultyButtons()
     {
-        // 선택된 난이도에 따라 버튼 색 등을 바꿔줄 수 있음
-        // (일단 interactable만 예시로)
         if (easyButton != null)
             easyButton.interactable = _selectedDifficulty != Difficulty.Easy;
         if (normalButton != null)

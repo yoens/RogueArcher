@@ -10,4 +10,6 @@ public class SaveData
     public float sfxVolume = 1f;
 
     public Difficulty lastDifficulty = Difficulty.Normal;
+
+    public Difficulty bestScoreDifficulty;
 }

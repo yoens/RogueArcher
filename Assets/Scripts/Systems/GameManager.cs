@@ -16,6 +16,9 @@ public class GameManager : MonoBehaviour
     int _nextUpgradeScore = 50;
     bool _upgradeOpen = false;
 
+
+    
+
     SaveData _saveData;
     int _currentSlot = 0;
     public Difficulty difficulty = Difficulty.Normal;
@@ -64,14 +67,15 @@ public class GameManager : MonoBehaviour
         // 플레이 횟수 증가
         _saveData.totalRuns++;
 
+        _saveData.lastDifficulty = difficulty;
         // 최고 점수 갱신
         if (_score > _saveData.bestScore)
         {
             _saveData.bestScore = _score;
-            Debug.Log($"[GameManager] New BestScore = {_saveData.bestScore}");
+            _saveData.bestScoreDifficulty = difficulty;   
+            Debug.Log($"[GameManager] New BestScore = {_saveData.bestScore} / {difficulty}");
         }
-        // 마지막 플레이 난이도 저장
-        _saveData.lastDifficulty = difficulty;
+
 
         SaveSystem.Save(_saveData, _currentSlot);
     }
