@@ -18,6 +18,8 @@ public class PlayerStats : MonoBehaviour
         {
             h.maxHP += v;
             h.currentHP += v;   // 체력도 채워주기
+
+            h.RefreshHPEvent();
         }
     }
 

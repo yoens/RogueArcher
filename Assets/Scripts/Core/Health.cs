@@ -34,7 +34,10 @@ public class Health : MonoBehaviour
             Die();
         }
     }
-
+    public void RefreshHPEvent()
+    {
+        OnHPChanged?.Invoke(currentHP, maxHP);
+    }
     public void Heal(int amount)
     {
         currentHP = Mathf.Min(currentHP + amount, maxHP);

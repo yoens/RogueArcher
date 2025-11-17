@@ -33,6 +33,9 @@ public class Projectile : MonoBehaviour
         speed = finalSpeed;
         damage = finalDamage;
 
+        float angle = Mathf.Atan2(_dir.y, _dir.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.Euler(0f, 0f, angle );
+
         gameObject.SetActive(true);
     }
 

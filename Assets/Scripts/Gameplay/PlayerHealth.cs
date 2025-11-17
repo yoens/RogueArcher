@@ -13,6 +13,7 @@ public class PlayerHealth : MonoBehaviour
         _health.destroyOnDie = false;
         _health.OnDie += OnPlayerDie;
         _health.OnDamaged += OnDamaged;
+        _health.OnHPChanged += OnHPChanged;
 
         if (gameHUD != null)
             gameHUD.SetHP(_health.currentHP, _health.maxHP);
@@ -34,6 +35,11 @@ public class PlayerHealth : MonoBehaviour
     {
         if (gameHUD != null)
             gameHUD.SetHP(_health.currentHP, _health.maxHP);
+    }
+    void OnHPChanged(int cur, int max)
+    {
+        if (gameHUD != null)
+            gameHUD.SetHP(cur, max);
     }
 
     void OnPlayerDie()
