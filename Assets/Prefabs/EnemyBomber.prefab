@@ -189,9 +189,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 2
-  dropDistance: 5
+  dropDistance: 10
   dropCooldown: 2
   bombPrefab: {fileID: 5751998310413159799, guid: 1d26109fda5e2c84581f5b0bdd1078a2, type: 3}
+  throwForce: 6
   avoidDistance: 1.2
   avoidStrength: 2
   obstacleMask:

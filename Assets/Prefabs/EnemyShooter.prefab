@@ -188,7 +188,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d4973c65a36ef24fbc5351861e07bd5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 1.5
+  moveSpeed: 2.5
   keepDistance: 4
   fireInterval: 1.5
   projectilePrefab: {fileID: 7238789361667633254, guid: b4c0ca82b1b29564d9e0e1a47cedcc60, type: 3}

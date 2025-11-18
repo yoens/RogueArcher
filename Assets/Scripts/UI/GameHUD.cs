@@ -18,12 +18,21 @@ public class GameHUD : MonoBehaviour
 
     public SoundSettingsUI soundSettingsUI;
 
+    public TextMeshProUGUI enemyCountText;
+
     Health _boundBossHealth; // 현재 바인딩된 보스 HP
     void Awake()
     {
 
         if (bossAlertRoot) bossAlertRoot.SetActive(false);
         if (bossHPRoot) bossHPRoot.SetActive(false);
+
+        SetEnemyCount(0);
+    }
+    public void SetEnemyCount(int count)
+    {
+        if (enemyCountText != null)
+            enemyCountText.text = $"Enemy: {count}";
     }
 
     public void SetHP(int current, int max)

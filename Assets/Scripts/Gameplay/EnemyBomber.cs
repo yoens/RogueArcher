@@ -7,14 +7,17 @@ public class EnemyBomber : MonoBehaviour
 {
     public float moveSpeed = 2f;
 
-    [Header("Bomb Drop")]
-    public float dropDistance = 4f;
+    [Header("Bomb Throw")]
+    public float dropDistance = 4f;    // 이 거리 안에 들어오면 던짐
     public float dropCooldown = 2f;
     public GameObject bombPrefab;
 
     float _dropTimer;
     Transform _target;
     Rigidbody2D _rb;
+
+    [Header("던지기 설정")]
+    public float throwForce = 6f;      // 폭탄 날아가는 속도
 
     [Header("Avoidance")]
     public float avoidDistance = 1.2f;
@@ -37,7 +40,7 @@ public class EnemyBomber : MonoBehaviour
             h.currentHP = h.maxHP;
         }
 
-        // 만약 폭탄 데미지를 EnemySO.contactDamage로 쓰고 싶다면:
+        // 폭탄 데미지를 SO에서 쓰고 싶으면 여기서 저장해두면 됨
         // explosionDamage = Mathf.RoundToInt(data.contactDamage * dmgMul);
     }
 
@@ -83,18 +86,31 @@ public class EnemyBomber : MonoBehaviour
         // 3) 이동은 velocity로
         _rb.velocity = dir * moveSpeed;
 
-        // 4) 폭탄 설치
+        // 4) 일정 거리 안 + 쿨타임 끝 → 폭탄 "던지기"
         float dist = Vector2.Distance(transform.position, _target.position);
         if (dist <= dropDistance && _dropTimer <= 0f)
         {
-            DropBomb();
+            ThrowBomb();
             _dropTimer = dropCooldown;
         }
     }
 
-    void DropBomb()
+    // ★ 플레이어 방향으로 폭탄 던지기
+    void ThrowBomb()
     {
-        if (bombPrefab == null) return;
-        Instantiate(bombPrefab, transform.position, Quaternion.identity);
+        if (bombPrefab == null || _target == null) return;
+
+        // 던질 방향 = 현재 위치 → 플레이어
+        Vector2 dir = (_target.position - transform.position).normalized;
+
+        var bomb = Instantiate(bombPrefab, transform.position, Quaternion.identity);
+
+        if (bomb.TryGetComponent<Rigidbody2D>(out var rb))
+        {
+            rb.velocity = dir * throwForce;
+        }
+
+        // 폭발 타이머 / 범위는 Bomb 스크립트 쪽에서 처리
+        // (예: Bomb에서 Start()에서 코루틴으로 1초 후 폭발 등)
     }
 }

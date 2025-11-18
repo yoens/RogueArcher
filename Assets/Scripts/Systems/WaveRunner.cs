@@ -29,6 +29,12 @@ public class WaveRunner : MonoBehaviour
     public float spawnCheckRadius = 0.6f;
     public int spawnMaxTry = 10;
 
+    [Header("Play Area")]
+    public BoxCollider2D playAreaCollider;
+
+    [Header("Fallback Spawn Points")]
+    public Transform[] fallbackSpawnPoints;
+
     [Header("Boss Arena")]
     public GameObject stageEnv;          // 일반 웨이브 맵 루트
     public GameObject bossEnv;           // 보스 아레나 맵 루트
@@ -242,11 +248,13 @@ public class WaveRunner : MonoBehaviour
                     _alive.Remove(enemy);
                     if (GameManager.Instance != null)
                         GameManager.Instance.AddScore(10);
+
+                    UpdateEnemyCountUI();
                 };
             }
 
             _alive.Add(enemy);
-
+            UpdateEnemyCountUI();
             yield return new WaitForSeconds(info.spawnInterval);
         }
     }
@@ -260,6 +268,7 @@ public class WaveRunner : MonoBehaviour
                 break;
             yield return null;
         }
+        UpdateEnemyCountUI();
     }
 
     // ========== 강화 적용 ==========
@@ -292,19 +301,72 @@ public class WaveRunner : MonoBehaviour
         Debug.Log($"Upgrade picked: {upgrade.displayName}");
     }
 
-    // ========== 스폰 위치 계산 ==========
     Vector2 FindSafeSpawnPosition()
     {
         for (int i = 0; i < spawnMaxTry; i++)
         {
+            // 0) 예전처럼 화면 밖 기준으로 스폰 위치 뽑기
             Vector2 candidate = GetOffscreenPosition();
 
-            bool blocked = Physics2D.OverlapCircle(candidate, spawnCheckRadius, obstacleMask);
-            if (!blocked)
+            // 1) 플레이 영역 안쪽으로 클램프
+            candidate = ClampInsidePlayArea(candidate);
+
+            // 2) 장애물 체크
+            bool blockedCircle = Physics2D.OverlapCircle(
+                candidate,
+                spawnCheckRadius,
+                obstacleMask
+            );
+
+            bool blockedBox = Physics2D.BoxCast(
+                candidate,
+                Vector2.one * spawnCheckRadius * 1.2f,
+                0f,
+                Vector2.zero,
+                0f,
+                obstacleMask
+            );
+
+            bool blockedRay = Physics2D.Raycast(
+                candidate,
+                Vector2.down,
+                0.2f,
+                obstacleMask
+            );
+
+            if (!blockedCircle && !blockedBox && !blockedRay)
+            {
                 return candidate;
+            }
         }
 
-        return GetOffscreenPosition();
+        // 여기부터 "정말 다 막혔을 때" 처리
+        // 1순위: 직접 지정한 fallback 스폰 포인트들
+        if (fallbackSpawnPoints != null && fallbackSpawnPoints.Length > 0)
+        {
+            Transform p = fallbackSpawnPoints[Random.Range(0, fallbackSpawnPoints.Length)];
+            if (p != null)
+                return p.position;
+        }
+
+        // 2순위: 그래도 없으면 그냥 안쪽으로 클램프된 위치
+        Vector2 fallback = ClampInsidePlayArea(GetOffscreenPosition());
+        return fallback;
+    }
+    Vector2 ClampInsidePlayArea(Vector2 pos)
+    {
+        if (playAreaCollider == null)
+            return pos;
+
+        Bounds b = playAreaCollider.bounds;
+
+        // 벽에서 살짝 안쪽으로 들어오게 margin
+        float margin = 0.5f;
+
+        float x = Mathf.Clamp(pos.x, b.min.x + margin, b.max.x - margin);
+        float y = Mathf.Clamp(pos.y, b.min.y + margin, b.max.y - margin);
+
+        return new Vector2(x, y);
     }
 
     Vector2 GetOffscreenPosition()
@@ -312,32 +374,84 @@ public class WaveRunner : MonoBehaviour
         Camera cam = Camera.main;
         Vector2 center = _player != null ? (Vector2)_player.position : Vector2.zero;
 
-        if (cam == null)
-            return center + Random.insideUnitCircle.normalized * spawnRadius;
+        // 화면 밖으로 내보낼 거리 (인스펙터에서 1.5 ~ 3 정도 추천)
+        float sideMargin = offscreenMargin;
 
-        float halfH = cam.orthographicSize;
-        float halfW = halfH * cam.aspect;
-        float margin = offscreenMargin;
+        // 맵 벽에서 살짝 안쪽으로 스폰시키기 위한 여유
+        float wallMargin = 0.8f;
 
-        int side = Random.Range(0, 4);
-        Vector2 pos = center;
-
-        switch (side)
+        // 1) 카메라 기준으로 "화면 밖" 좌표 먼저 계산
+        if (cam != null)
         {
-            case 0: // 위
-                pos = center + new Vector2(Random.Range(-halfW, halfW), halfH + margin);
-                break;
-            case 1: // 아래
-                pos = center + new Vector2(Random.Range(-halfW, halfW), -halfH - margin);
-                break;
-            case 2: // 오른쪽
-                pos = center + new Vector2(halfW + margin, Random.Range(-halfH, halfH));
-                break;
-            case 3: // 왼쪽
-                pos = center + new Vector2(-halfW - margin, Random.Range(-halfH, halfH));
-                break;
+            float halfH = cam.orthographicSize;
+            float halfW = halfH * cam.aspect;
+
+            int side = Random.Range(0, 4);
+            Vector2 pos = center;
+
+            switch (side)
+            {
+                case 0: // 위
+                    pos = center + new Vector2(
+                        Random.Range(-halfW, halfW),
+                        halfH + sideMargin
+                    );
+                    break;
+                case 1: // 아래
+                    pos = center + new Vector2(
+                        Random.Range(-halfW, halfW),
+                        -halfH - sideMargin
+                    );
+                    break;
+                case 2: // 오른쪽
+                    pos = center + new Vector2(
+                        halfW + sideMargin,
+                        Random.Range(-halfH, halfH)
+                    );
+                    break;
+                case 3: // 왼쪽
+                    pos = center + new Vector2(
+                        -halfW - sideMargin,
+                        Random.Range(-halfH, halfH)
+                    );
+                    break;
+            }
+
+            // 2) 플레이 영역(BoxCollider2D) 안으로 강제 클램프
+            if (playAreaCollider != null)
+            {
+                Bounds b = playAreaCollider.bounds;
+
+                pos.x = Mathf.Clamp(pos.x, b.min.x + wallMargin, b.max.x - wallMargin);
+                pos.y = Mathf.Clamp(pos.y, b.min.y + wallMargin, b.max.y - wallMargin);
+            }
+
+            return pos;
         }
 
-        return pos;
+        // 3) 카메라가 없으면, 플레이 영역 안쪽에서만 랜덤
+        if (playAreaCollider != null)
+        {
+            Bounds b = playAreaCollider.bounds;
+            wallMargin = 0.8f;
+
+            float minX = b.min.x + wallMargin;
+            float maxX = b.max.x - wallMargin;
+            float minY = b.min.y + wallMargin;
+            float maxY = b.max.y - wallMargin;
+
+            return new Vector2(
+                Random.Range(minX, maxX),
+                Random.Range(minY, maxY)
+            );
+        }
+
+        // 4) 최악의 경우(플레이어/카메라/콜라이더 다 없을 때) 예전 방식
+        return center + Random.insideUnitCircle.normalized * spawnRadius;
+    }
+    void UpdateEnemyCountUI()
+    {
+        if (gameHUD != null)
+            gameHUD.SetEnemyCount(_alive.Count);
     }
 }
