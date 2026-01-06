@@ -129,3 +129,8 @@ ChatGPT는 다음과 같은 용도로 사용되었습니다.:
 - **Tech**: Unity, C#, 2D Game Architecture
 
 ---
+
+## 📸 Screenshots
+![Gameplay](./screenshots/gameplay.png)
+
+---
