@@ -131,6 +131,18 @@ ChatGPT는 다음과 같은 용도로 사용되었습니다.:
 ---
 
 ## 📸 Screenshots
-![Gameplay](./screenshots/gameplay.png)
+
+### 🎮 Core Gameplay
+![Gameplay](./screenshots/Ingame_1.png)
+![Gameplay](./screenshots/Ingame_2.png)
+
+### 👹 Boss Fight
+![Boss](./screenshots/Boss_1.png)
+![Boss](./screenshots/Boss_2.png)
+
+### ⚙️ Settings & UI
+![Settings](./screenshots/MainUI.png)
+![Settings](./screenshots/SettingUI.png)
+![Settings](./screenshots/MenuUI.png)
 
 ---
