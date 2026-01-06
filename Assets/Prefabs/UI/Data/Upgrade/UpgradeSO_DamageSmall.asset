@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c10b5dd696a30e48bec33cc81297244, type: 3}
   m_Name: UpgradeSO_DamageSmall
   m_EditorClassIdentifier: 
-  displayName: Damage Small +1
+  displayName: Damage +1
   description: 
   type: 3
   floatValue: 0

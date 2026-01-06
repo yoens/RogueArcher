@@ -164052,6 +164052,10 @@ PrefabInstance:
       propertyPath: gameOverUI
       value: 
       objectReference: {fileID: 843495038}
+    - target: {fileID: 6300288938717820110, guid: c502eb35047fd4c4284aa4f2f2c0e5f5, type: 3}
+      propertyPath: m_Constraints
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 6392228691482287586, guid: c502eb35047fd4c4284aa4f2f2c0e5f5, type: 3}
       propertyPath: m_SortingLayer
       value: 3
