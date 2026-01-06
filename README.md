@@ -133,8 +133,8 @@ ChatGPT는 다음과 같은 용도로 사용되었습니다.:
 ## 📸 Screenshots
 
 ### 🎮 Core Gameplay
-![Gameplay](./screenshots/Ingame_1.png)
 ![Gameplay](./screenshots/Ingame_2.png)
+![Gameplay](./screenshots/Ingame_1.png)
 
 ### 👹 Boss Fight
 ![Boss](./screenshots/Boss_1.png)
