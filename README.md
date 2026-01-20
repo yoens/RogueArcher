@@ -146,3 +146,8 @@ ChatGPT는 다음과 같은 용도로 사용되었습니다.:
 ![Boss](./screenshots/Boss_2.png)
 
 ---
+
+## 🎥 Gameplay Video
+https://youtu.be/fNxQzFqIUYs
+
+---
