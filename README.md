@@ -1,4 +1,4 @@
-# 🎮 Project Title (2D Top-Down Action Game)
+# 🏹 Rogue Archer (2D Top-Down Action Game)
 
 Unity 기반의 **2D 탑다운 로그라이크 액션 게임**입니다.  
 웨이브 기반 전투, 난이도 선택, 세이브 슬롯 시스템을 중심으로  
