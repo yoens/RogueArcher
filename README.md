@@ -13,6 +13,7 @@ Unity 기반의 **2D 탑다운 로그라이크 액션 게임**입니다.
 - **Platform**: PC (Windows)
 - **Genre**: Top-Down Action / Roguelike
 - **Development Type**: 1인 개발
+  
 플레이어는 끊임없이 몰려오는 적을 상대하며  
 업그레이드를 선택하고, 보스 웨이브까지 생존하는 것을 목표로 합니다.
 
