@@ -28,7 +28,6 @@ Unity 기반의 **2D 탑다운 로그라이크 액션 게임**입니다.
 
 ### ✔ Enemy AI
 - 플레이어 추적 AI
-- 장애물 회피 (Ray 기반 Steering)
 - 폭탄 투척형 Enemy (Bomber)
 - 스폰 시 벽/장애물 끼임 방지 로직
 
