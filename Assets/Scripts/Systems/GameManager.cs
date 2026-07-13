@@ -9,10 +9,10 @@ public class GameManager : MonoBehaviour
     public GameHUD hud;
 
     [Header("Score Upgrade")]
-    public UpgradeUI upgradeUI;         // Á¡¼ö·Î ¿­¸± °­È­ UI
-    public PlayerStats playerStats;     // ½ÇÁ¦·Î °­È­ Àû¿ëÇÒ ´ë»ó
-    public UpgradeSO[] upgradePool;     //  Á¡¼ö ¾÷±×·¹ÀÌµå¿ë Ç®
-    public int scorePerUpgrade = 50;    // 50Á¡¸¶´Ù °­È­
+    public UpgradeUI upgradeUI;         // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È­ UI
+    public PlayerStats playerStats;     // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È­ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+    public UpgradeSO[] upgradePool;     //  ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµï¿½ï¿½ Ç®
+    public int scorePerUpgrade = 50;    // 50ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È­
     int _nextUpgradeScore = 50;
     bool _upgradeOpen = false;
 
@@ -30,6 +30,10 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
+        // ===== ì¸¡ì •ìš© (ì¸¡ì • ëë‚˜ë©´ ì‚­ì œ) =====
+        ObjectPool<Projectile>.BypassPool = false;   // ë¯¸ì ìš© ì¸¡ì •í•  ë•Œ
+        // ObjectPool<Projectile>.BypassPool = false; // ì ìš© ì¸¡ì •í•  ë•Œ (ê¸°ë³¸ê°’ì´ë¼ ìƒëµ ê°€ëŠ¥)
+        // =====================================
         if (Instance == null)
         {
             Instance = this;
@@ -39,11 +43,11 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        // ¸ŞÀÎ¸Ş´º¿¡¼­ ¼±ÅÃÇÑ °ª °¡Á®¿À±â
+        // ï¿½ï¿½ï¿½Î¸Ş´ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         _currentSlot = RunConfig.SaveSlotIndex;
         difficulty = RunConfig.Difficulty;
 
-        // ¼¼ÀÌºê ·Îµå
+        // ï¿½ï¿½ï¿½Ìºï¿½ ï¿½Îµï¿½
         _saveData = SaveSystem.Load(_currentSlot);
         Debug.Log($"[GameManager] Slot={_currentSlot}, BestScore={_saveData.bestScore}, TotalRuns={_saveData.totalRuns}, LastDiff={_saveData.lastDifficulty}");
 
@@ -64,11 +68,11 @@ public class GameManager : MonoBehaviour
     }
     public void EndRun(bool isClear)
     {
-        // ÇÃ·¹ÀÌ È½¼ö Áõ°¡
+        // ï¿½Ã·ï¿½ï¿½ï¿½ È½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         _saveData.totalRuns++;
 
         _saveData.lastDifficulty = difficulty;
-        // ÃÖ°í Á¡¼ö °»½Å
+        // ï¿½Ö°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (_score > _saveData.bestScore)
         {
             _saveData.bestScore = _score;
@@ -82,13 +86,13 @@ public class GameManager : MonoBehaviour
 
     void CheckScoreUpgrade()
     {
-        // Á¡¼ö ¾ÆÁ÷ ºÎÁ·
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (_score < _nextUpgradeScore) return;
 
-        // ÀÌ¹Ì ´Ù¸¥ °­È­Ã¢ ¿­·ÁÀÖÀ½
+        // ï¿½Ì¹ï¿½ ï¿½Ù¸ï¿½ ï¿½ï¿½È­Ã¢ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         if (_upgradeOpen) return;
 
-        // ¾÷±×·¹ÀÌµå UI³ª Ç®ÀÌ ¾øÀ¸¸é ±×³É ´ÙÀ½ ¸ñÇ¥¸¸ ¿Ã¸®°í ³¡
+        // ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµï¿½ UIï¿½ï¿½ Ç®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×³ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥ï¿½ï¿½ ï¿½Ã¸ï¿½ï¿½ï¿½ ï¿½ï¿½
         if (upgradeUI == null || upgradePool == null || upgradePool.Length == 0)
         {
             _nextUpgradeScore += scorePerUpgrade;
@@ -97,21 +101,21 @@ public class GameManager : MonoBehaviour
 
         _upgradeOpen = true;
 
-        // ·£´ı 3°³ »Ì±â
+        // ï¿½ï¿½ï¿½ï¿½ 3ï¿½ï¿½ ï¿½Ì±ï¿½
         var three = PickThree(upgradePool);
 
-        // UI ¿­±â
+        // UI ï¿½ï¿½ï¿½ï¿½
         upgradeUI.Show(three, selected =>
         {
             ApplyUpgrade(selected);
             _upgradeOpen = false;
         });
 
-        // ´ÙÀ½ ¸ñÇ¥ Á¡¼ö
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥ ï¿½ï¿½ï¿½ï¿½
         _nextUpgradeScore += scorePerUpgrade;
     }
 
-    //  ÀÌ°Ç ÀÌÁ¦ SO ±â¹İ
+    //  ï¿½Ì°ï¿½ ï¿½ï¿½ï¿½ï¿½ SO ï¿½ï¿½ï¿½
     void ApplyUpgrade(UpgradeSO upgrade)
     {
         if (playerStats == null || upgrade == null) return;
@@ -141,23 +145,23 @@ public class GameManager : MonoBehaviour
         Debug.Log($"Upgrade picked: {upgrade.displayName}");
     }
 
-    // ±×´ë·Î ½áµµ µÇ´Â ·£´ı 3°³ »Ì±â
+    // ï¿½×´ï¿½ï¿½ ï¿½áµµ ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½ï¿½ 3ï¿½ï¿½ ï¿½Ì±ï¿½
     UpgradeSO[] PickThree(UpgradeSO[] pool)
     {
         if (pool == null || pool.Length == 0)
             return new UpgradeSO[0];
 
-        // 1) Ç®À» ¸®½ºÆ®·Î º¹»ç
+        // 1) Ç®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         List<UpgradeSO> list = new List<UpgradeSO>(pool);
 
-        // 2) ·£´ı ¼ÅÇÃ (Fisher-Yates ½ºÅ¸ÀÏ)
+        // 2) ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (Fisher-Yates ï¿½ï¿½Å¸ï¿½ï¿½)
         for (int i = 0; i < list.Count; i++)
         {
             int r = Random.Range(i, list.Count);
             (list[i], list[r]) = (list[r], list[i]);
         }
 
-        // 3) ¾Õ¿¡¼­ ÃÖ´ë 3°³ »Ì±â
+        // 3) ï¿½Õ¿ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ 3ï¿½ï¿½ ï¿½Ì±ï¿½
         int count = Mathf.Min(3, list.Count);
         UpgradeSO[] result = new UpgradeSO[count];
         for (int i = 0; i < count; i++)
@@ -169,8 +173,8 @@ public class GameManager : MonoBehaviour
     {
         switch (difficulty)
         {
-            case Difficulty.Easy: return 0.7f;  // Àû Ã¼·Â 70%
-            case Difficulty.Hard: return 1.4f;  // Àû Ã¼·Â 140%
+            case Difficulty.Easy: return 0.7f;  // ï¿½ï¿½ Ã¼ï¿½ï¿½ 70%
+            case Difficulty.Hard: return 1.4f;  // ï¿½ï¿½ Ã¼ï¿½ï¿½ 140%
             default: return 1.0f;  // Normal
         }
     }
@@ -199,8 +203,8 @@ public class GameManager : MonoBehaviour
     {
         switch (difficulty)
         {
-            case Difficulty.Easy: return 0.8f;  // ½¬¿òÀº Á¡¼ö Á¶±İ ´ú ÁÜ
-            case Difficulty.Hard: return 1.3f;  // ¾î·Á¿òÀº Á¡¼ö ´õ ÁÜ
+            case Difficulty.Easy: return 0.8f;  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
+            case Difficulty.Hard: return 1.3f;  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
             default: return 1.0f;
         }
     }
