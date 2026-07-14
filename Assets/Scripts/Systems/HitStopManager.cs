@@ -13,7 +13,7 @@ public class HitStopManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 슬로모션형 히트스톱. 중복/연타 방지 포함.
+ 
     /// </summary>
     public static void TryDoHitStop(float duration = 0.06f, float slowMoScale = 0.15f, float cooldown = 0.25f)
     {
@@ -32,7 +32,7 @@ public class HitStopManager : MonoBehaviour
         float oldFixed = Time.fixedDeltaTime;
 
         Time.timeScale = Mathf.Clamp(slowMoScale, 0.05f, 1f);
-        Time.fixedDeltaTime = 0.02f * Time.timeScale; // 물리 동기화
+        Time.fixedDeltaTime = 0.02f * Time.timeScale;
 
         yield return new WaitForSecondsRealtime(duration);
 

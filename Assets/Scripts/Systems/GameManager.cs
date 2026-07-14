@@ -9,10 +9,10 @@ public class GameManager : MonoBehaviour
     public GameHUD hud;
 
     [Header("Score Upgrade")]
-    public UpgradeUI upgradeUI;         // ������ ���� ��ȭ UI
-    public PlayerStats playerStats;     // ������ ��ȭ ������ ���
-    public UpgradeSO[] upgradePool;     //  ���� ���׷��̵�� Ǯ
-    public int scorePerUpgrade = 50;    // 50������ ��ȭ
+    public UpgradeUI upgradeUI;         
+    public PlayerStats playerStats;    
+    public UpgradeSO[] upgradePool;    
+    public int scorePerUpgrade = 50;    
     int _nextUpgradeScore = 50;
     bool _upgradeOpen = false;
 
@@ -43,11 +43,10 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        // ���θ޴����� ������ �� ��������
+       
         _currentSlot = RunConfig.SaveSlotIndex;
         difficulty = RunConfig.Difficulty;
 
-        // ���̺� �ε�
         _saveData = SaveSystem.Load(_currentSlot);
         Debug.Log($"[GameManager] Slot={_currentSlot}, BestScore={_saveData.bestScore}, TotalRuns={_saveData.totalRuns}, LastDiff={_saveData.lastDifficulty}");
 
@@ -68,11 +67,11 @@ public class GameManager : MonoBehaviour
     }
     public void EndRun(bool isClear)
     {
-        // �÷��� Ƚ�� ����
+     
         _saveData.totalRuns++;
 
         _saveData.lastDifficulty = difficulty;
-        // �ְ� ���� ����
+        
         if (_score > _saveData.bestScore)
         {
             _saveData.bestScore = _score;
@@ -86,13 +85,13 @@ public class GameManager : MonoBehaviour
 
     void CheckScoreUpgrade()
     {
-        // ���� ���� ����
+     
         if (_score < _nextUpgradeScore) return;
 
-        // �̹� �ٸ� ��ȭâ ��������
+      
         if (_upgradeOpen) return;
 
-        // ���׷��̵� UI�� Ǯ�� ������ �׳� ���� ��ǥ�� �ø��� ��
+       
         if (upgradeUI == null || upgradePool == null || upgradePool.Length == 0)
         {
             _nextUpgradeScore += scorePerUpgrade;
@@ -101,21 +100,21 @@ public class GameManager : MonoBehaviour
 
         _upgradeOpen = true;
 
-        // ���� 3�� �̱�
+       
         var three = PickThree(upgradePool);
 
-        // UI ����
+       
         upgradeUI.Show(three, selected =>
         {
             ApplyUpgrade(selected);
             _upgradeOpen = false;
         });
 
-        // ���� ��ǥ ����
+      
         _nextUpgradeScore += scorePerUpgrade;
     }
 
-    //  �̰� ���� SO ���
+
     void ApplyUpgrade(UpgradeSO upgrade)
     {
         if (playerStats == null || upgrade == null) return;
@@ -145,23 +144,23 @@ public class GameManager : MonoBehaviour
         Debug.Log($"Upgrade picked: {upgrade.displayName}");
     }
 
-    // �״�� �ᵵ �Ǵ� ���� 3�� �̱�
+  
     UpgradeSO[] PickThree(UpgradeSO[] pool)
     {
         if (pool == null || pool.Length == 0)
             return new UpgradeSO[0];
 
-        // 1) Ǯ�� ����Ʈ�� ����
+      
         List<UpgradeSO> list = new List<UpgradeSO>(pool);
 
-        // 2) ���� ���� (Fisher-Yates ��Ÿ��)
+      
         for (int i = 0; i < list.Count; i++)
         {
             int r = Random.Range(i, list.Count);
             (list[i], list[r]) = (list[r], list[i]);
         }
 
-        // 3) �տ��� �ִ� 3�� �̱�
+      
         int count = Mathf.Min(3, list.Count);
         UpgradeSO[] result = new UpgradeSO[count];
         for (int i = 0; i < count; i++)
@@ -173,9 +172,9 @@ public class GameManager : MonoBehaviour
     {
         switch (difficulty)
         {
-            case Difficulty.Easy: return 0.7f;  // �� ü�� 70%
-            case Difficulty.Hard: return 1.4f;  // �� ü�� 140%
-            default: return 1.0f;  // Normal
+            case Difficulty.Easy: return 0.7f;  
+            case Difficulty.Hard: return 1.4f;  
+            default: return 1.0f; 
         }
     }
 
@@ -203,8 +202,8 @@ public class GameManager : MonoBehaviour
     {
         switch (difficulty)
         {
-            case Difficulty.Easy: return 0.8f;  // ������ ���� ���� �� ��
-            case Difficulty.Hard: return 1.3f;  // ������� ���� �� ��
+            case Difficulty.Easy: return 0.8f; 
+            case Difficulty.Hard: return 1.3f;  
             default: return 1.0f;
         }
     }

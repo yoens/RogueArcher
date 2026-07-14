@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class MainMenuUI : MonoBehaviour
 {
     [Header("Slot Info Texts")]
-    public TextMeshProUGUI[] slotLabels;   // 슬롯 0,1,2 텍스트
+    public TextMeshProUGUI[] slotLabels;   
 
     [Header("Difficulty Buttons")]
     public Button easyButton;
@@ -30,7 +30,6 @@ public class MainMenuUI : MonoBehaviour
         RefreshDifficultyButtons();
     }
 
-    // --- 슬롯 선택 (UI Button에서 호출) ---
     public void OnSelectSlot(int slotIndex)
     {
         _selectedSlot = slotIndex;
@@ -38,8 +37,6 @@ public class MainMenuUI : MonoBehaviour
         RefreshSlotLabels();
     }
 
-    // --- 슬롯 리셋 (UI Button에서 호출) ---
-    // 슬롯별 Reset 버튼에 이 함수 + 인덱스 연결 (예: Slot0Reset 버튼 → 0)
     public void OnClickResetSlot(int slotIndex)
     {
         SaveSystem.DeleteSlot(slotIndex);
@@ -47,7 +44,6 @@ public class MainMenuUI : MonoBehaviour
         RefreshSlotLabels();
     }
 
-    // 선택된 슬롯만 리셋하고 싶으면 이걸 버튼에 연결해도 됨
     public void OnClickResetSelectedSlot()
     {
         confirmPopup.Show(
@@ -65,7 +61,6 @@ public class MainMenuUI : MonoBehaviour
         );
     }
 
-    // --- 난이도 선택 (UI Button에서 호출) ---
     public void OnSelectDifficulty(int diff)
     {
         _selectedDifficulty = (Difficulty)diff;
@@ -73,7 +68,6 @@ public class MainMenuUI : MonoBehaviour
         RefreshDifficultyButtons();
     }
 
-    // --- Start Game 버튼 ---
     public void OnClickStartGame()
     {
         RunConfig.SaveSlotIndex = _selectedSlot;
@@ -91,7 +85,6 @@ public class MainMenuUI : MonoBehaviour
 
             string title = (i == _selectedSlot) ? $"[Slot {i}]" : $"Slot {i}";
 
-            // 저장 여부 체크해서 Empty / 기록 표시
             if (!SaveSystem.HasSlot(i))
             {
                 label.text = $"{title}\nEmpty";

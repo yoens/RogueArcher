@@ -8,7 +8,7 @@ public class EnemyBomber : MonoBehaviour
     public float moveSpeed = 2f;
 
     [Header("Bomb Throw")]
-    public float dropDistance = 4f;    // 이 거리 안에 들어오면 던짐
+    public float dropDistance = 4f;    
     public float dropCooldown = 2f;
     public GameObject bombPrefab;
 
@@ -16,8 +16,8 @@ public class EnemyBomber : MonoBehaviour
     Transform _target;
     Rigidbody2D _rb;
 
-    [Header("던지기 설정")]
-    public float throwForce = 6f;      // 폭탄 날아가는 속도
+    [Header("占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙")]
+    public float throwForce = 6f;      
 
     [Header("Avoidance")]
     public float avoidDistance = 1.2f;
@@ -40,8 +40,6 @@ public class EnemyBomber : MonoBehaviour
             h.currentHP = h.maxHP;
         }
 
-        // 폭탄 데미지를 SO에서 쓰고 싶으면 여기서 저장해두면 됨
-        // explosionDamage = Mathf.RoundToInt(data.contactDamage * dmgMul);
     }
 
     void Awake()
@@ -67,10 +65,10 @@ public class EnemyBomber : MonoBehaviour
 
         _dropTimer -= Time.deltaTime;
 
-        // 1) 기본 추적 방향
+        
         Vector2 desiredDir = (_target.position - transform.position).normalized;
 
-        // 2) 장애물 감지 + 회피
+        
         Vector2 dir = desiredDir;
         RaycastHit2D hit = Physics2D.Raycast(transform.position, desiredDir, avoidDistance, obstacleMask);
         if (hit.collider != null)
@@ -83,10 +81,10 @@ public class EnemyBomber : MonoBehaviour
             dir.Normalize();
         }
 
-        // 3) 이동은 velocity로
+       
         _rb.velocity = dir * moveSpeed;
 
-        // 4) 일정 거리 안 + 쿨타임 끝 → 폭탄 "던지기"
+       
         float dist = Vector2.Distance(transform.position, _target.position);
         if (dist <= dropDistance && _dropTimer <= 0f)
         {
@@ -95,12 +93,12 @@ public class EnemyBomber : MonoBehaviour
         }
     }
 
-    // ★ 플레이어 방향으로 폭탄 던지기
+   
     void ThrowBomb()
     {
         if (bombPrefab == null || _target == null) return;
 
-        // 던질 방향 = 현재 위치 → 플레이어
+       
         Vector2 dir = (_target.position - transform.position).normalized;
 
         var bomb = Instantiate(bombPrefab, transform.position, Quaternion.identity);
@@ -110,7 +108,6 @@ public class EnemyBomber : MonoBehaviour
             rb.velocity = dir * throwForce;
         }
 
-        // 폭발 타이머 / 범위는 Bomb 스크립트 쪽에서 처리
-        // (예: Bomb에서 Start()에서 코루틴으로 1초 후 폭발 등)
+        
     }
 }

@@ -14,7 +14,7 @@ public class BossEnemy : MonoBehaviour
     public GameObject projectilePrefab;
 
     [Header("Phase Threshold")]
-    [Range(0.1f, 0.9f)] public float phase2Threshold = 0.5f; // HP 50% ¹Ì¸¸ÀÌ¸é ÀüÈ¯
+    [Range(0.1f, 0.9f)] public float phase2Threshold = 0.5f; 
 
     [Header("Phase1")]
     public float moveSpeedP1 = 1.5f;
@@ -27,7 +27,7 @@ public class BossEnemy : MonoBehaviour
     public float fireIntervalP2 = 0.8f;
     public int burstCountP2 = 10;
     public float projectileSpeedP2 = 5f;
-    public float spiralDeltaDeg = 12f;  // ½ºÆÄÀÌ·² È¸Àü °¢µµ
+    public float spiralDeltaDeg = 12f;  
 
     Transform _target;
     SpriteRenderer _sr;
@@ -35,9 +35,9 @@ public class BossEnemy : MonoBehaviour
     BossState _state = BossState.Phase1;
 
     float _fireTimer;
-    float _spiralOffsetDeg; // Phase2¿¡¼­ È¸Àü °¢µµ ´©Àû
+    float _spiralOffsetDeg; 
 
-    // WaveRunner¿¡¼­ SO·Î ÁÖÀÔ
+    // WaveRunnerï¿½ï¿½ï¿½ï¿½ SOï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     public void Setup(EnemySO data)
     {
         if (data == null) return;
@@ -55,7 +55,7 @@ public class BossEnemy : MonoBehaviour
         }
 
         moveSpeedP1 = data.moveSpeed * spdMul;
-        // moveSpeedP2 ´Â ÀÎ½ºÆåÅÍ °ª À¯ÁöÇÏ°Å³ª, spdMul °öÇØ¼­ ´õ ºü¸£°Ô ÇØµµ µÊ
+       
     }
 
     void Awake()

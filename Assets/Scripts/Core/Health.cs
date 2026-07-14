@@ -10,20 +10,20 @@ public class Health : MonoBehaviour
     public event Action OnDie;
     public event Action OnDamaged;
 
-    //  추가: HP 변경시 (cur,max) 알림
+    
     public event Action<int, int> OnHPChanged;
 
     void Awake()
     {
         currentHP = maxHP;
-        OnHPChanged?.Invoke(currentHP, maxHP); // 초기값 알림
+        OnHPChanged?.Invoke(currentHP, maxHP);
     }
 
     public void Take(int dmg)
     {
         currentHP -= dmg;
         OnDamaged?.Invoke();
-        OnHPChanged?.Invoke(currentHP, maxHP); //  체력 변경 알림
+        OnHPChanged?.Invoke(currentHP, maxHP); 
 
         var fx = GetComponentInChildren<FlashEffect>(true);
         if (fx != null) fx.Flash();

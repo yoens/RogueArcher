@@ -26,7 +26,7 @@ public class EnemyProjectile : MonoBehaviour
             Despawn();
             return;
         }
-        //  플레이어만 맞춤
+       
         if (other.CompareTag("Player"))
         {
             if (other.TryGetComponent<Health>(out var h))
@@ -35,7 +35,7 @@ public class EnemyProjectile : MonoBehaviour
             }
             Despawn();
         }
-        // Enemy나 다른 건 무시
+       
     }
 
     void Despawn()

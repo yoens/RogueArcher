@@ -8,9 +8,8 @@ using UnityEngine.UI;
 public class RebindMoveUI : MonoBehaviour
 {
     [Header("Input")]
-    public InputActionReference moveAction;  // Player/Move 액션 참조 (Vector2 Composite)
+    public InputActionReference moveAction; 
 
-    // composite 안의 binding index들 (인스펙터에서 지정)
     public int upBindingIndex;
     public int downBindingIndex;
     public int leftBindingIndex;
@@ -39,7 +38,6 @@ public class RebindMoveUI : MonoBehaviour
 
     void Start()
     {
-        // 버튼 이벤트 연결
         if (upButton != null) upButton.onClick.AddListener(() => StartRebind(upBindingIndex, upLabel));
         if (downButton != null) downButton.onClick.AddListener(() => StartRebind(downBindingIndex, downLabel));
         if (leftButton != null) leftButton.onClick.AddListener(() => StartRebind(leftBindingIndex, leftLabel));
@@ -86,7 +84,6 @@ public class RebindMoveUI : MonoBehaviour
         if (_action == null) return;
         if (bindingIndex < 0 || bindingIndex >= _action.bindings.Count) return;
 
-        // UI에 표시
         if (label != null)
             label.text = "...";
 

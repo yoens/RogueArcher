@@ -13,11 +13,11 @@ public class PlayerStats : MonoBehaviour
     public void AddMaxHP(int v)
     {
         maxHPBonus += v;
-        // 실제로 플레이어 Health에도 반영
+      
         if (TryGetComponent<Health>(out var h))
         {
             h.maxHP += v;
-            h.currentHP += v;   // 체력도 채워주기
+            h.currentHP += v;  
 
             h.RefreshHPEvent();
         }

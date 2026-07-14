@@ -15,6 +15,8 @@ public class PlayerShooter : MonoBehaviour
     ObjectPool<Projectile> _pool;
     PlayerStats _stats;  // Player에 붙어있는 거 가져오기
 
+    // 측정용 (측정 끝나면 삭제)
+    public ObjectPool<Projectile> GetPoolForTest() => _pool;
     void Awake()
     {
         _cam = Camera.main;

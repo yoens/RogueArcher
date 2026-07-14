@@ -34,7 +34,7 @@ public static class SaveSystem
         return data;
     }
 
-    //슬롯 데이터 초기화(리셋)
+    
     public static void DeleteSlot(int slotIndex = 0)
     {
         string key = KEY_PREFIX + slotIndex;
@@ -51,7 +51,7 @@ public static class SaveSystem
         }
     }
 
-    // (선택) 슬롯이 존재하는지 체크할 때 쓰기 좋음
+   
     public static bool HasSlot(int slotIndex = 0)
     {
         string key = KEY_PREFIX + slotIndex;

@@ -13,7 +13,7 @@ public class FlashEffect : MonoBehaviour
 
     void Awake()
     {
-        // º»ÀÎ + ÀÚ½Ä¿¡ ÀÖ´Â ¸ðµç SpriteRenderer ¼öÁý
+       
         _renderers = GetComponentsInChildren<SpriteRenderer>(true);
         _originalColors = new Color[_renderers.Length];
 
@@ -26,7 +26,7 @@ public class FlashEffect : MonoBehaviour
         if (_playing) return;
         if (_renderers == null || _renderers.Length == 0)
         {
-            Debug.LogWarning($"[FlashEffect] SpriteRenderer ¾øÀ½: {name}");
+            Debug.LogWarning($"[FlashEffect] SpriteRenderer ï¿½ï¿½ï¿½ï¿½: {name}");
             return;
         }
 
@@ -38,13 +38,13 @@ public class FlashEffect : MonoBehaviour
     {
         _playing = true;
 
-        // »ö ¹Ù²Ù±â
+      
         for (int i = 0; i < _renderers.Length; i++)
             _renderers[i].color = flashColor;
 
         yield return new WaitForSeconds(flashDuration);
 
-        // ¿ø·¡´ë·Î
+      
         for (int i = 0; i < _renderers.Length; i++)
             _renderers[i].color = _originalColors[i];
 

@@ -20,7 +20,7 @@ public class GameHUD : MonoBehaviour
 
     public TextMeshProUGUI enemyCountText;
 
-    Health _boundBossHealth; // 현재 바인딩된 보스 HP
+    Health _boundBossHealth; 
     void Awake()
     {
 
@@ -85,7 +85,7 @@ public class GameHUD : MonoBehaviour
         if (bossHPRoot == null || bossHPSlider == null || bossHealth == null) return;
 
         if (_boundBossHealth != null)
-            _boundBossHealth.OnHPChanged -= OnBossHPChanged; // 중복구독 방지
+            _boundBossHealth.OnHPChanged -= OnBossHPChanged; 
 
         _boundBossHealth = bossHealth;
 

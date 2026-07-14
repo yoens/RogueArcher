@@ -5,8 +5,8 @@ public class InputRebindManager : MonoBehaviour
 {
     public static InputRebindManager Instance;
 
-    [Header("공용 InputActionAsset")]
-    public InputActionAsset actions;   // PlayerInput이 쓰는 그 Asset 넣기
+    [Header("占쏙옙占쏙옙 InputActionAsset")]
+    public InputActionAsset actions;   
 
     const string REBIND_KEY = "InputRebinds";
 
@@ -21,7 +21,7 @@ public class InputRebindManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        // 게임 시작할 때마다 저장된 리바인드 로드
+        
         LoadRebinds();
     }
 

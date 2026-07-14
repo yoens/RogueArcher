@@ -20,7 +20,7 @@ public class EnemySpawner : MonoBehaviour
 
     void Spawn()
     {
-        // 플레이어 주변 원형으로 스폰
+  
         Vector2 pos = Random.insideUnitCircle.normalized * radius;
         Instantiate(enemyPrefab, pos, Quaternion.identity);
     }

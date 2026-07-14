@@ -4,7 +4,7 @@ using UnityEngine;
 [System.Serializable]
 public struct NamedClip
 {
-    public string key;      // "BGM_Stage", "SFX_Shoot" 같은 키
+    public string key;     
     public AudioClip clip;
 }
 
@@ -27,7 +27,7 @@ public class AudioManager : MonoBehaviour
 
     void Awake()
     {
-        // 싱글톤 세팅
+       
         if (Instance == null)
         {
             Instance = this;
@@ -71,8 +71,7 @@ public class AudioManager : MonoBehaviour
         }
 
         if (bgmSource.clip == clip && bgmSource.isPlaying)
-            return; // 같은 곡이면 다시 안 틂
-
+            return;
         bgmSource.loop = loop;
         bgmSource.clip = clip;
         bgmSource.Play();
@@ -98,7 +97,7 @@ public class AudioManager : MonoBehaviour
 
         float originalPitch = sfxSource.pitch;
 
-        // 피격 사운드만 빠르게
+        
         if (key == "SFX_HitEnemy")
             sfxSource.pitch = 1.25f;
         else

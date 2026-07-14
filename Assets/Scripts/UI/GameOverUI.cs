@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class GameOverUI : MonoBehaviour
 {
-    public GameObject root; // GameOverCanvas 또는 Panel
+    public GameObject root; 
     public Button restartButton;
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI bestScoreText;
@@ -19,7 +19,7 @@ public class GameOverUI : MonoBehaviour
     public void Show()
     {
         root.SetActive(true);
-        Time.timeScale = 0f; // 일시정지
+        Time.timeScale = 0f;
 
         if (GameManager.Instance != null)
         {

@@ -7,8 +7,7 @@ public class Bomb : MonoBehaviour
     public int damage = 2;
     public LayerMask hitMask;
 
-    public GameObject explosionEffectPrefab;  // ★ 추가
-
+    public GameObject explosionEffectPrefab; 
     void Start()
     {
         Invoke(nameof(Explode), explodeDelay);
@@ -16,13 +15,11 @@ public class Bomb : MonoBehaviour
 
     void Explode()
     {
-        // 1) 이펙트 생성
         if (explosionEffectPrefab != null)
         {
             Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
         }
 
-        // 2) 데미지 처리
         var hits = Physics2D.OverlapCircleAll(transform.position, radius, hitMask);
         foreach (var hit in hits)
         {
@@ -32,7 +29,7 @@ public class Bomb : MonoBehaviour
             }
         }
         AudioManager.Instance?.PlaySFX("SFX_Explode");
-        // 3) 폭탄 본체 제거
+       
         Destroy(gameObject);
     }
 

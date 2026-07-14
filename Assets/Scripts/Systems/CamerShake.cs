@@ -35,7 +35,7 @@ public class CameraShake : MonoBehaviour
         while (t < dur)
         {
             t += Time.deltaTime;
-            float k = 1f - Mathf.Clamp01(t / dur); // °¨¼è
+            float k = 1f - Mathf.Clamp01(t / dur); // ï¿½ï¿½ï¿½ï¿½
             _perlin.m_AmplitudeGain = amp * k;
             yield return null;
         }
@@ -48,10 +48,9 @@ public class CameraShake : MonoBehaviour
         if (_perlin != null)
         {
             _perlin.m_AmplitudeGain = 0f;
-            // ¿øÇÑ´Ù¸é Frequencyµµ ÃÊ±â°ªÀ¸·Î
-            // _perlin.m_FrequencyGain = 1f;
+            
         }
-        // VCamÀº Ç×»ó 0µµ, Z¸¸ -10 °°Àº °íÁ¤°ª À¯Áö
+        
         transform.localRotation = Quaternion.identity;
     }
 }
