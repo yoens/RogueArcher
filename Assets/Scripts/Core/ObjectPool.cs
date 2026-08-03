@@ -3,9 +3,8 @@ using UnityEngine;
 
 public class ObjectPool<T> where T : Component
 {
-    // ===== 측정용 토글 (측정 끝나면 삭제) =====
-    public static bool BypassPool = false;
-    // ==========================================
+    public static bool BypassPool = false;   // ← [추가 ①] 스위치
+
     readonly Queue<T> _pool = new Queue<T>();
     readonly T _prefab;
     readonly Transform _root;
@@ -14,6 +13,7 @@ public class ObjectPool<T> where T : Component
     {
         _prefab = prefab;
         _root = root;
+        if (BypassPool) return;              // ← [추가 ②] 풀 끄면 prewarm 스킵
         for (int i = 0; i < prewarm; i++)
         {
             var obj = Object.Instantiate(_prefab, _root);
@@ -24,20 +24,11 @@ public class ObjectPool<T> where T : Component
 
     public T Get(Vector3 pos, Quaternion rot)
     {
-        if (BypassPool)
-        {
-            // 풀 미사용 시뮬레이션: 매번 새로 생성
-            return Object.Instantiate(_prefab, pos, rot, _root);
-        }        
         T obj;
-        if (_pool.Count > 0)
-        {
-            obj = _pool.Dequeue();
-        }
-        else
-        {
+        if (BypassPool || _pool.Count == 0)  // ← [수정 ③] 조건에 BypassPool 추가
             obj = Object.Instantiate(_prefab, _root);
-        }
+        else
+            obj = _pool.Dequeue();
 
         obj.transform.SetPositionAndRotation(pos, rot);
         obj.gameObject.SetActive(true);
@@ -46,12 +37,11 @@ public class ObjectPool<T> where T : Component
 
     public void Return(T obj)
     {
-        if (BypassPool)
+        if (BypassPool)                      // ← [추가 ④] 풀 끄면 파괴
         {
-            // 풀 미사용 시뮬레이션: 매번 파괴
             Object.Destroy(obj.gameObject);
             return;
-        }        
+        }
         obj.gameObject.SetActive(false);
         _pool.Enqueue(obj);
     }

@@ -30,10 +30,10 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
-        // ===== 측정용 (측정 끝나면 삭제) =====
-        ObjectPool<Projectile>.BypassPool = false;   // 미적용 측정할 때
+        /* ===== 측정용 (측정 끝나면 삭제) =====
+        ObjectPool<Projectile>.BypassPool = true;   // 미적용 측정할 때
         // ObjectPool<Projectile>.BypassPool = false; // 적용 측정할 때 (기본값이라 생략 가능)
-        // =====================================
+        */ 
         if (Instance == null)
         {
             Instance = this;
