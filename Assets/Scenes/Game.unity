@@ -164141,7 +164141,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8771848204229190707, guid: c502eb35047fd4c4284aa4f2f2c0e5f5, type: 3}
       propertyPath: fireCooldown
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -164149,43 +164149,13 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 8524588088704239052, guid: c502eb35047fd4c4284aa4f2f2c0e5f5, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 7341013687652377233}
-    - targetCorrespondingSourceObject: {fileID: 8524588088704239052, guid: c502eb35047fd4c4284aa4f2f2c0e5f5, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 7341013687652377234}
   m_SourcePrefab: {fileID: 100100000, guid: c502eb35047fd4c4284aa4f2f2c0e5f5, type: 3}
---- !u!114 &7341013687652377231 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8771848204229190707, guid: c502eb35047fd4c4284aa4f2f2c0e5f5, type: 3}
-  m_PrefabInstance: {fileID: 7341013687652377230}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7341013687652377232}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c563e07243527b1ddb5cb08856f0ab5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &7341013687652377232 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8524588088704239052, guid: c502eb35047fd4c4284aa4f2f2c0e5f5, type: 3}
   m_PrefabInstance: {fileID: 7341013687652377230}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &7341013687652377233
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7341013687652377232}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f054ea84efec83948919072d100a5f65, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  shooter: {fileID: 7341013687652377231}
-  bypassPool: 1
-  interval: 0.02
-  burstCount: 20
 --- !u!114 &7341013687652377234
 MonoBehaviour:
   m_ObjectHideFlags: 0
