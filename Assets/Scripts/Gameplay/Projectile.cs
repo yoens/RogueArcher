@@ -10,48 +10,56 @@ public class Projectile : MonoBehaviour
     Vector3 _dir;
     ObjectPool<Projectile> _pool;
 
-    int _pierceLeft = 0;
+    int _pierceLeft;
+    bool _inFlight;
 
     public void Init(ObjectPool<Projectile> pool)
     {
         _pool = pool;
     }
 
-    // dir: 방향
-    // extraPierce: 플레이어 스탯에서 온 관통 보너스
-    // finalSpeed: 스탯 적용된 탄속
-    // finalDamage: 스탯 적용된 데미지
-    public void Fire(Vector3 dir, int extraPierce, float finalSpeed, int finalDamage)
+    public void Fire(
+        Vector3 dir,
+        int extraPierce,
+        float finalSpeed,
+        int finalDamage)
     {
         _dir = dir.normalized;
         _timer = 0f;
-
-        // 기본 1타 + 보너스 관통
         _pierceLeft = 1 + extraPierce;
 
-        // 여기서 실제 사용할 값 세팅
         speed = finalSpeed;
         damage = finalDamage;
 
-        float angle = Mathf.Atan2(_dir.y, _dir.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0f, 0f, angle );
+        float angle =
+            Mathf.Atan2(_dir.y, _dir.x) * Mathf.Rad2Deg;
 
+        transform.rotation =
+            Quaternion.Euler(0f, 0f, angle);
+
+        _inFlight = true;
         gameObject.SetActive(true);
     }
 
     void Update()
     {
-        transform.position += _dir * speed * Time.deltaTime;
+        if (!_inFlight) return;
+
+        transform.position +=
+            _dir * speed * Time.deltaTime;
+
         _timer += Time.deltaTime;
+
         if (_timer >= lifeTime)
-        {
             Despawn();
-        }
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Wall") || other.CompareTag("Tile"))
+        if (!_inFlight) return;
+
+        if (other.CompareTag("Wall") ||
+            other.CompareTag("Tile"))
         {
             Despawn();
             return;
@@ -60,10 +68,12 @@ public class Projectile : MonoBehaviour
         if (other.CompareTag("Enemy"))
         {
             AudioManager.Instance?.PlaySFX("SFX_HitEnemy");
-            if (other.TryGetComponent<Health>(out var h))
-                h.Take(damage);
+
+            if (other.TryGetComponent<Health>(out var health))
+                health.Take(damage);
 
             _pierceLeft--;
+
             if (_pierceLeft <= 0)
                 Despawn();
         }
@@ -71,9 +81,19 @@ public class Projectile : MonoBehaviour
 
     void Despawn()
     {
+        if (!_inFlight) return;
+
+        // 반환 또는 파괴 요청 전에 중복 처리를 차단
+        _inFlight = false;
+
         if (_pool != null)
             _pool.Return(this);
         else
             gameObject.SetActive(false);
+    }
+
+    void OnDisable()
+    {
+        _inFlight = false;
     }
 }

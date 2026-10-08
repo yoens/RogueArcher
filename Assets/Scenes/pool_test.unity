@@ -164183,9 +164183,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shooter: {fileID: 7341013687652377231}
-  bypassPool: 0
+  bypassPool: 1
   interval: 0.02
-  burstCount: 20
+  burstCount: 2
 --- !u!114 &7341013687652377234
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -164198,8 +164198,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8336b40e40f0305088d870f2caa1c330, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  autoFire: {fileID: 7341013687652377233}
   warmup: 5
-  duration: 60
+  duration: 180
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
